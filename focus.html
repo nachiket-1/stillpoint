@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Focus — Stillpoint</title>
+<meta name="description" content="A small focus timer in a quiet place. Pick a sound, start the breath, do the work." />
+<meta name="theme-color" content="#f6efe2" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/style.css" />
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js"
+  }
+}
+</script>
+</head>
+<body data-page="focus">
+
+<div class="boot" id="boot"><span class="boot__dot"></span></div>
+
+<nav class="nav" id="nav">
+  <a class="nav__brand" href="index.html">stillpoint<span>.</span></a>
+  <div class="nav__links">
+    <a href="index.html">Home</a>
+    <a href="soundscapes.html">Soundscapes</a>
+    <a href="focus.html" class="is-active">Focus</a>
+    <a href="about.html">About</a>
+  </div>
+  <button class="nav__menu" id="navMenu" aria-label="Menu">≡</button>
+</nav>
+
+<div class="indicator">003 / <span>FOCUS</span></div>
+
+<section class="focus">
+  <div class="scene-stage" id="focusStage"></div>
+
+  <div class="focus__panel reveal">
+    <p class="focus__eyebrow">A small ritual</p>
+    <div class="focus__time" id="time">25:00</div>
+    <div class="focus__phase" id="phase">focus</div>
+
+    <div class="focus__controls">
+      <button class="focus__chip is-active" data-mode="focus">Focus · 25</button>
+      <button class="focus__chip" data-mode="short">Short · 5</button>
+      <button class="focus__chip" data-mode="long">Long · 15</button>
+    </div>
+
+    <div class="focus__controls" style="margin-top:14px;">
+      <button class="btn btn--primary" id="toggle">Start <span class="arrow">→</span></button>
+      <button class="btn btn--ghost" id="reset">Reset</button>
+    </div>
+
+    <div class="focus__sound">
+      <button data-sound="none" class="is-active">silence</button>
+      <button data-sound="fireplace">hearth</button>
+      <button data-sound="ocean">tideline</button>
+      <button data-sound="forest">nightwood</button>
+      <button data-sound="rain">mist</button>
+      <button data-sound="stream">brook</button>
+    </div>
+  </div>
+</section>
+
+<div class="bottom-line">
+  <span>SLOW IS A SUPERPOWER</span>
+  <span class="credit">crafted by Nachiket Talekar · 2026</span>
+</div>
+
+<script type="module" src="js/scene-focus.js"></script>
+<script type="module" src="js/focus-timer.js"></script>
+<script type="module" src="js/page.js"></script>
+</body>
+</html>

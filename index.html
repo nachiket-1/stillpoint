@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Stillpoint — a quiet corner of the internet</title>
+<meta name="description" content="Stillpoint is a small, slow space made of light, sound, and rolling green. Step in, take a breath, and stay a while." />
+<meta name="theme-color" content="#f6efe2" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/style.css" />
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js"
+  }
+}
+</script>
+</head>
+<body data-page="home">
+
+<div class="boot" id="boot"><span class="boot__dot"></span></div>
+
+<nav class="nav" id="nav">
+  <a class="nav__brand" href="index.html">stillpoint<span>.</span></a>
+  <div class="nav__links">
+    <a href="index.html" class="is-active">Home</a>
+    <a href="soundscapes.html">Soundscapes</a>
+    <a href="focus.html">Focus</a>
+    <a href="about.html">About</a>
+  </div>
+  <button class="nav__menu" id="navMenu" aria-label="Menu">≡</button>
+</nav>
+
+<div class="indicator">001 / <span>HOME</span></div>
+
+<main class="scene-stage" id="stage">
+  <div class="overlay">
+    <p class="eyebrow reveal">A still place to land</p>
+    <h1 class="display reveal">A quiet corner<br/>of the <em>internet</em>.</h1>
+    <p class="lede reveal">No notifications. No infinite feed. Just rolling hills, rain on glass, the sound of waves at dusk — a small ritual to bring you back to yourself.</p>
+    <div class="cta-row reveal">
+      <a class="btn btn--primary" href="soundscapes.html">Enter the soundscapes <span class="arrow">→</span></a>
+      <a class="btn btn--ghost" href="focus.html">Try the focus timer</a>
+    </div>
+  </div>
+</main>
+
+<div class="bottom-line">
+  <span>SCROLL — there is nowhere to scroll. that is the point.</span>
+  <span class="credit">crafted by Nachiket Talekar · 2026</span>
+</div>
+
+<script type="module" src="js/scene-hero.js"></script>
+<script type="module" src="js/page.js"></script>
+</body>
+</html>

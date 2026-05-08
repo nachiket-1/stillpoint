@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>About — Stillpoint</title>
+<meta name="description" content="A small note on why this exists, and the hands behind it." />
+<meta name="theme-color" content="#f6efe2" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/style.css" />
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js"
+  }
+}
+</script>
+</head>
+<body data-page="about">
+
+<div class="boot" id="boot"><span class="boot__dot"></span></div>
+
+<nav class="nav" id="nav">
+  <a class="nav__brand" href="index.html">stillpoint<span>.</span></a>
+  <div class="nav__links">
+    <a href="index.html">Home</a>
+    <a href="soundscapes.html">Soundscapes</a>
+    <a href="focus.html">Focus</a>
+    <a href="about.html" class="is-active">About</a>
+  </div>
+  <button class="nav__menu" id="navMenu" aria-label="Menu">≡</button>
+</nav>
+
+<div class="indicator">004 / <span>ABOUT</span></div>
+
+<section class="about">
+  <div class="about__art" id="aboutArt"></div>
+  <div class="about__copy">
+    <h1 class="reveal">A small <em>antidote</em> to the scroll.</h1>
+    <p class="reveal">Most of the internet is built to keep you moving. Tap, swipe, refresh. <strong>Stillpoint is built to keep you still.</strong></p>
+    <p class="reveal">It began with a question: what if a website could feel like the moment you step out onto a porch at dusk — that first long breath, the world a little quieter than the one inside? So I made four worlds — a hearth, a tideline, a nightwood, a soft rain — and a small timer to put a frame around your work.</p>
+    <p class="reveal">No accounts. No analytics breathing down your neck. No dark patterns. Open it, listen, leave. Or stay a while.</p>
+    <div class="about__signature reveal">
+      Nachiket Talekar
+      <small>Made with Blender, Three.js, and a slow afternoon · 2026</small>
+    </div>
+  </div>
+</section>
+
+<div class="bottom-line">
+  <span>YOU CAN ALWAYS COME BACK</span>
+  <span class="credit">stillpoint.app</span>
+</div>
+
+<script type="module" src="js/scene-about.js"></script>
+<script type="module" src="js/page.js"></script>
+</body>
+</html>
