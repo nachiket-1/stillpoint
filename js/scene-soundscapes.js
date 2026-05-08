@@ -2,6 +2,7 @@
 import * as THREE from 'three';
 
 const builders = {
+  dawn:      buildDawn,
   fireplace: buildFireplace,
   ocean:     buildOcean,
   forest:    buildForest,
@@ -61,6 +62,142 @@ function initScene(canvas, build) {
   io.observe(canvas);
 
   window.addEventListener('resize', resize);
+}
+
+// ─────────────────────────────────────────────────────────────
+// DAWN — rose/amber sky, silhouetted trees, drifting birds, morning mist
+function buildDawn(scene, camera) {
+  // Sky — amber/rose at horizon fading to soft steel-blue at top
+  const skyGeo = new THREE.SphereGeometry(50, 32, 16);
+  const skyMat = new THREE.ShaderMaterial({
+    side: THREE.BackSide,
+    uniforms: {},
+    vertexShader: `varying vec3 vW; void main(){ vec4 wp=modelMatrix*vec4(position,1.0); vW=wp.xyz; gl_Position=projectionMatrix*viewMatrix*wp; }`,
+    fragmentShader: `
+      varying vec3 vW;
+      void main(){
+        float h = normalize(vW).y;
+        vec3 glow = vec3(1.0,  0.60, 0.28);
+        vec3 rose = vec3(0.96, 0.74, 0.62);
+        vec3 blue = vec3(0.58, 0.68, 0.84);
+        vec3 c = mix(glow, rose, smoothstep(0.0, 0.38, h));
+        c = mix(c, blue, smoothstep(0.22, 0.90, h));
+        gl_FragColor = vec4(c, 1.0);
+      }`,
+  });
+  scene.add(new THREE.Mesh(skyGeo, skyMat));
+
+  scene.add(new THREE.HemisphereLight(0xffd0a0, 0x3c4430, 0.65));
+  const sunLight = new THREE.DirectionalLight(0xffbb77, 0.7);
+  sunLight.position.set(-4, 1, -6);
+  scene.add(sunLight);
+
+  // Rising sun soft halo at the horizon
+  const haloMat = new THREE.ShaderMaterial({
+    transparent: true, depthWrite: false, depthTest: true,
+    blending: THREE.NormalBlending,
+    uniforms: {},
+    vertexShader: `varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.0); }`,
+    fragmentShader: `
+      varying vec2 vUv;
+      void main(){
+        float d = distance(vUv, vec2(0.5));
+        float a = pow(1.0 - smoothstep(0.0, 0.5, d), 1.6) * 0.55;
+        gl_FragColor = vec4(1.0, 0.68, 0.32, a);
+      }`,
+  });
+  const sunHalo = new THREE.Mesh(new THREE.CircleGeometry(3.4, 64), haloMat);
+  sunHalo.position.set(-5.2, -0.5, -12);
+  scene.add(sunHalo);
+
+  // Silhouetted tree line
+  const treeMat = new THREE.MeshStandardMaterial({ color: 0x0e1210, roughness: 1 });
+  for (let i = 0; i < 24; i++) {
+    const h = 1.0 + Math.random() * 1.6;
+    const tree = new THREE.Mesh(new THREE.ConeGeometry(0.14 + Math.random() * 0.11, h, 5), treeMat);
+    tree.position.set((Math.random() - 0.5) * 22, -1.0 + h * 0.5, -4 - Math.random() * 5);
+    scene.add(tree);
+    const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.05, 0.3, 5), treeMat);
+    trunk.position.set(tree.position.x, -1.0 + 0.15, tree.position.z);
+    scene.add(trunk);
+  }
+
+  // Dark meadow ground
+  const ground = new THREE.Mesh(
+    new THREE.PlaneGeometry(30, 8),
+    new THREE.MeshStandardMaterial({ color: 0x222918, roughness: 1 })
+  );
+  ground.rotation.x = -Math.PI / 2;
+  ground.position.y = -1.0;
+  scene.add(ground);
+
+  // Birds — small V-shapes drifting left to right
+  const birds = [];
+  for (let i = 0; i < 9; i++) {
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(
+      new Float32Array([-0.09, 0.045, 0,  0, 0, 0,  0.09, 0.045, 0]), 3
+    ));
+    const b = new THREE.Line(g, new THREE.LineBasicMaterial({ color: 0x0e1210, transparent: true, opacity: 0.65 }));
+    b.position.set(-10 + Math.random() * 5, 0.5 + Math.random() * 1.4, -3 - Math.random() * 5);
+    b.scale.setScalar(0.5 + Math.random() * 0.5);
+    b.userData.speed = 0.5 + Math.random() * 0.55;
+    scene.add(b);
+    birds.push(b);
+  }
+
+  // Morning mist — soft warm particles floating low
+  const count = 130;
+  const mp = new Float32Array(count * 3);
+  const ph = new Float32Array(count);
+  for (let i = 0; i < count; i++) {
+    mp[i*3]   = (Math.random() - 0.5) * 14;
+    mp[i*3+1] = -0.7 + Math.random() * 1.0;
+    mp[i*3+2] = -1   - Math.random() * 7;
+    ph[i] = Math.random() * 6.28;
+  }
+  const mistGeo = new THREE.BufferGeometry();
+  mistGeo.setAttribute('position', new THREE.BufferAttribute(mp, 3));
+  mistGeo.setAttribute('aPhase',   new THREE.BufferAttribute(ph, 1));
+  const mistMat = new THREE.ShaderMaterial({
+    transparent: true, depthWrite: false, blending: THREE.NormalBlending,
+    uniforms: { time: { value: 0 } },
+    vertexShader: `
+      attribute float aPhase; uniform float time; varying float vA;
+      void main(){
+        vec3 p = position;
+        p.x += sin(time*0.25 + aPhase) * 0.35;
+        vec4 mv = modelViewMatrix*vec4(p,1.0);
+        gl_Position = projectionMatrix*mv;
+        gl_PointSize = clamp(220.0 / -mv.z, 4.0, 14.0);
+        vA = 0.25 + 0.15*sin(time*0.4 + aPhase);
+      }`,
+    fragmentShader: `
+      varying float vA;
+      void main(){
+        float a = smoothstep(0.5, 0.0, length(gl_PointCoord-0.5));
+        gl_FragColor = vec4(1.0, 0.88, 0.76, a*vA);
+      }`,
+  });
+  const mist = new THREE.Points(mistGeo, mistMat);
+  scene.add(mist);
+
+  camera.position.set(0, 0.3, 3.8);
+  camera.lookAt(0, 0.0, -3);
+
+  return {
+    update(t, dt) {
+      mistMat.uniforms.time.value = t;
+      birds.forEach((b) => {
+        b.position.x += b.userData.speed * dt;
+        if (b.position.x > 11) {
+          b.position.x = -11;
+          b.position.y = 0.5 + Math.random() * 1.4;
+        }
+      });
+      camera.position.x = Math.sin(t * 0.1) * 0.12;
+    }
+  };
 }
 
 // ─────────────────────────────────────────────────────────────

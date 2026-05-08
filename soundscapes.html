@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>Soundscapes — Stillpoint</title>
-<meta name="description" content="Five worlds, one breath. Mix fireplace, ocean, forest, rain, and stream into your own ambient room." />
+<meta name="description" content="Six worlds, one breath. Mix birdsong, fireplace, ocean, forest, rain, and stream into your own ambient room." />
 <meta name="theme-color" content="#f6efe2" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -37,11 +37,23 @@
 
 <section class="scapes">
   <header class="scapes__head">
-    <h1 class="reveal">Five worlds,<br/>one <em>breath</em>.</h1>
+    <h1 class="reveal">Six worlds,<br/>one <em>breath</em>.</h1>
     <p class="scapes__hint reveal">Tap a card to enter its sound. Layer as many as you like — the mixer below lets you dial each one. Headphones recommended.</p>
   </header>
 
   <div class="scape-grid">
+    <article class="scape scape--wide" data-key="dawn" data-audio="assets/audio/dawn.mp3">
+      <canvas></canvas>
+      <div class="scape__play"><span>▶</span><span class="scape__pulse"></span></div>
+      <div class="scape__label">
+        <div>
+          <h3>Dawn</h3>
+          <p>Morning birdsong</p>
+        </div>
+        <span class="scape__meta">01 · FIRST LIGHT</span>
+      </div>
+    </article>
+
     <article class="scape" data-key="fireplace" data-audio="assets/audio/fireplace.mp3">
       <canvas></canvas>
       <div class="scape__play"><span>▶</span><span class="scape__pulse"></span></div>
@@ -50,7 +62,7 @@
           <h3>Hearth</h3>
           <p>Crackling fireplace</p>
         </div>
-        <span class="scape__meta">01 · WARMTH</span>
+        <span class="scape__meta">02 · WARMTH</span>
       </div>
     </article>
 
@@ -62,7 +74,7 @@
           <h3>Tideline</h3>
           <p>Ocean waves at dusk</p>
         </div>
-        <span class="scape__meta">02 · SEA</span>
+        <span class="scape__meta">03 · SEA</span>
       </div>
     </article>
 
@@ -74,7 +86,7 @@
           <h3>Nightwood</h3>
           <p>Forest with crickets</p>
         </div>
-        <span class="scape__meta">03 · NOCTURNE</span>
+        <span class="scape__meta">04 · NOCTURNE</span>
       </div>
     </article>
 
@@ -86,7 +98,7 @@
           <h3>Mist</h3>
           <p>Calm rain on glass</p>
         </div>
-        <span class="scape__meta">04 · WATER</span>
+        <span class="scape__meta">05 · WATER</span>
       </div>
     </article>
 
@@ -98,7 +110,7 @@
           <h3>Brook</h3>
           <p>Flowing forest stream</p>
         </div>
-        <span class="scape__meta">05 · CURRENT</span>
+        <span class="scape__meta">06 · CURRENT</span>
       </div>
     </article>
   </div>
@@ -106,6 +118,10 @@
 
 <div class="mixer" id="mixer">
   <div class="mixer__title">MIXER</div>
+  <div class="mixer__lane" data-key="dawn">
+    <span class="mixer__name">Dawn</span>
+    <input type="range" class="mixer__slider" min="0" max="100" value="60" />
+  </div>
   <div class="mixer__lane" data-key="fireplace">
     <span class="mixer__name">Hearth</span>
     <input type="range" class="mixer__slider" min="0" max="100" value="60" />
