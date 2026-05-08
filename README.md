@@ -67,7 +67,7 @@ python3 -m http.server 5173
 
 That's the URL to put in your Instagram bio.
 
-> Want a custom domain like `stillpoint.app`? Buy it (Namecheap, Cloudflare), then in **Settings → Pages → Custom domain** add it. Cloudflare's $10/yr `.app` is a great pick.
+> Custom domain (e.g. `thestillpoint.in`): in **Settings → Pages → Custom domain** add the domain, then at your registrar's DNS panel add a `CNAME` record pointing `www` (or apex via 4× `A` records → 185.199.108.153 / .109.153 / .110.153 / .111.153) to `nachiket-1.github.io`. GitHub auto-issues an HTTPS cert within minutes.
 
 ---
 

@@ -6,6 +6,14 @@
 <title>Soundscapes — Stillpoint</title>
 <meta name="description" content="Six worlds, one breath. Mix birdsong, fireplace, ocean, forest, rain, and stream into your own ambient room." />
 <meta name="theme-color" content="#f6efe2" />
+<link rel="icon" href="favicon.svg" type="image/svg+xml" />
+<!-- Open Graph -->
+<meta property="og:title" content="Soundscapes — Stillpoint" />
+<meta property="og:description" content="Six ambient worlds. Mix birdsong, fire, ocean, forest, rain, and stream." />
+<meta property="og:image" content="https://nachiket-1.github.io/stillpoint/og-preview.png" />
+<meta property="og:url" content="https://nachiket-1.github.io/stillpoint/soundscapes.html" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary_large_image" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -44,7 +52,7 @@
   <div class="scape-grid">
     <article class="scape" data-key="dawn" data-audio="assets/audio/dawn.mp3">
       <canvas></canvas>
-      <div class="scape__play"><span>▶</span><span class="scape__pulse"></span></div>
+      <div class="scape__play" role="button" aria-label="Play Dawn"><span>▶</span><span class="scape__pulse"></span></div>
       <div class="scape__label">
         <div>
           <h3>Dawn</h3>
@@ -56,7 +64,7 @@
 
     <article class="scape" data-key="fireplace" data-audio="assets/audio/fireplace.mp3">
       <canvas></canvas>
-      <div class="scape__play"><span>▶</span><span class="scape__pulse"></span></div>
+      <div class="scape__play" role="button" aria-label="Play Hearth"><span>▶</span><span class="scape__pulse"></span></div>
       <div class="scape__label">
         <div>
           <h3>Hearth</h3>
@@ -68,7 +76,7 @@
 
     <article class="scape" data-key="ocean" data-audio="assets/audio/ocean.mp3">
       <canvas></canvas>
-      <div class="scape__play"><span>▶</span><span class="scape__pulse"></span></div>
+      <div class="scape__play" role="button" aria-label="Play Tideline"><span>▶</span><span class="scape__pulse"></span></div>
       <div class="scape__label">
         <div>
           <h3>Tideline</h3>
@@ -80,7 +88,7 @@
 
     <article class="scape" data-key="forest" data-audio="assets/audio/forest.mp3">
       <canvas></canvas>
-      <div class="scape__play"><span>▶</span><span class="scape__pulse"></span></div>
+      <div class="scape__play" role="button" aria-label="Play Nightwood"><span>▶</span><span class="scape__pulse"></span></div>
       <div class="scape__label">
         <div>
           <h3>Nightwood</h3>
@@ -92,7 +100,7 @@
 
     <article class="scape" data-key="rain" data-audio="assets/audio/rain.mp3">
       <canvas></canvas>
-      <div class="scape__play"><span>▶</span><span class="scape__pulse"></span></div>
+      <div class="scape__play" role="button" aria-label="Play Mist"><span>▶</span><span class="scape__pulse"></span></div>
       <div class="scape__label">
         <div>
           <h3>Mist</h3>
@@ -104,7 +112,7 @@
 
     <article class="scape" data-key="stream" data-audio="assets/audio/stream.mp3">
       <canvas></canvas>
-      <div class="scape__play"><span>▶</span><span class="scape__pulse"></span></div>
+      <div class="scape__play" role="button" aria-label="Play Brook"><span>▶</span><span class="scape__pulse"></span></div>
       <div class="scape__label">
         <div>
           <h3>Brook</h3>
@@ -146,7 +154,8 @@
 
 <div class="bottom-line">
   <span>HEADPHONES MAKE THIS BETTER</span>
-  <span class="credit">crafted by Nachiket Talekar · 2026</span>
+  <!-- FOOTER: update year here if needed -->
+  <span class="credit">Nachiket Talekar · 2026</span>
 </div>
 
 <script type="module" src="js/scene-soundscapes.js"></script>

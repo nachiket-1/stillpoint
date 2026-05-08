@@ -1,21 +1,19 @@
 // Stillpoint — multi-track ambient audio mixer.
-// Each track loops, can be toggled via card click, and has an independent slider.
-// Browsers require a user gesture to start audio — first click unlocks all.
 
-const cards = document.querySelectorAll('.scape');
-const mixer = document.getElementById('mixer');
-const lanes = mixer ? mixer.querySelectorAll('.mixer__lane') : [];
+const cards  = document.querySelectorAll('.scape');
+const mixer  = document.getElementById('mixer');
+const lanes  = mixer ? mixer.querySelectorAll('.mixer__lane') : [];
 
 const tracks = {};
-let unlocked = false;
+let unlocked    = false;
 let activeCount = 0;
 
 function ensureTrack(key, src, initialVol) {
   if (tracks[key]) return tracks[key];
-  const audio = new Audio(src);
-  audio.loop = true;
+  const audio  = new Audio(src);
+  audio.loop   = true;
   audio.preload = 'auto';
-  audio.volume = initialVol;
+  audio.volume  = initialVol;
   tracks[key] = { audio, playing: false, vol: initialVol };
   return tracks[key];
 }
@@ -45,14 +43,18 @@ function showToast(msg) {
 }
 
 cards.forEach((card) => {
-  const key = card.dataset.key;
-  const src = card.dataset.audio;
-  const lane = mixer && mixer.querySelector(`.mixer__lane[data-key="${key}"]`);
+  const key    = card.dataset.key;
+  const src    = card.dataset.audio;
+  const lane   = mixer && mixer.querySelector(`.mixer__lane[data-key="${key}"]`);
   const slider = lane && lane.querySelector('.mixer__slider');
+  const playBtn = card.querySelector('.scape__play');
+
+  // Derive display name from the card's h3 for aria-label
+  const cardName = (card.querySelector('h3') || {}).textContent || key;
 
   card.addEventListener('click', () => {
     const initialVol = slider ? slider.value / 100 : 0.6;
-    const t = ensureTrack(key, src, 0); // start silent, fade in
+    const t = ensureTrack(key, src, 0);
     if (!unlocked) {
       unlocked = true;
       showToast('audio unlocked · headphones recommended');
@@ -61,23 +63,26 @@ cards.forEach((card) => {
       t.audio.play().then(() => {
         t.playing = true;
         card.classList.add('is-playing');
+        if (lane) lane.classList.add('is-active');
+        if (playBtn) playBtn.setAttribute('aria-label', `Stop ${cardName}`);
         fadeTo(t, initialVol);
         activeCount++;
         if (activeCount === 1 && mixer) mixer.classList.add('is-active');
-        const playBtn = card.querySelector('.scape__play span:first-child');
-        if (playBtn) playBtn.textContent = '❚❚';
+        const icon = card.querySelector('.scape__play span:first-child');
+        if (icon) icon.textContent = '❚❚';
       }).catch((err) => {
         console.warn('audio play failed', err);
       });
     } else {
-      // pause with fade
       fadeTo(t, 0);
       setTimeout(() => {
         t.audio.pause();
         t.playing = false;
         card.classList.remove('is-playing');
-        const playBtn = card.querySelector('.scape__play span:first-child');
-        if (playBtn) playBtn.textContent = '▶';
+        if (lane) lane.classList.remove('is-active');
+        if (playBtn) playBtn.setAttribute('aria-label', `Play ${cardName}`);
+        const icon = card.querySelector('.scape__play span:first-child');
+        if (icon) icon.textContent = '▶';
         activeCount = Math.max(0, activeCount - 1);
         if (activeCount === 0 && mixer) mixer.classList.remove('is-active');
       }, 620);
@@ -85,11 +90,20 @@ cards.forEach((card) => {
   });
 });
 
+// Sliders: update volume + visual fill
 lanes.forEach((lane) => {
-  const key = lane.dataset.key;
+  const key    = lane.dataset.key;
   const slider = lane.querySelector('.mixer__slider');
   if (!slider) return;
+
+  // Set initial fill
+  const updateFill = () => {
+    slider.style.setProperty('--fill', slider.value + '%');
+  };
+  updateFill();
+
   const onSlide = () => {
+    updateFill();
     const t = tracks[key];
     if (t) {
       t.vol = slider.value / 100;
@@ -100,7 +114,7 @@ lanes.forEach((lane) => {
   slider.addEventListener('change', onSlide); // iOS Safari fires change, not input
 });
 
-// Pause everything if tab hidden (be polite)
+// Pause everything when tab is hidden
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) {
     Object.values(tracks).forEach((t) => { if (t.playing) t.audio.pause(); });

@@ -1,5 +1,4 @@
 // Stillpoint — minimalist focus timer
-// 3 modes: focus 25 · short 5 · long 15. Optional ambient sound.
 
 const DURATIONS = { focus: 25 * 60, short: 5 * 60, long: 15 * 60 };
 const PHASES   = { focus: 'focus', short: 'short break', long: 'long break' };
@@ -12,22 +11,25 @@ const SOUNDS = {
   stream:    'assets/audio/stream.mp3',
 };
 
-const timeEl   = document.getElementById('time');
-const phaseEl  = document.getElementById('phase');
-const toggleBtn = document.getElementById('toggle');
-const resetBtn  = document.getElementById('reset');
-const modeBtns  = document.querySelectorAll('.focus__chip');
-const soundBtns = document.querySelectorAll('.focus__sound button');
+const timeEl     = document.getElementById('time');
+const phaseEl    = document.getElementById('phase');
+const sessionsEl = document.getElementById('sessions');
+const toggleBtn  = document.getElementById('toggle');
+const resetBtn   = document.getElementById('reset');
+const modeBtns   = document.querySelectorAll('.focus__chip');
+const soundBtns  = document.querySelectorAll('.focus__sound button');
 
-let mode = 'focus';
-let remaining = DURATIONS[mode];
-let running = false;
-let last = 0;
+let mode         = 'focus';
+let remaining    = DURATIONS[mode];
+let running      = false;
+let started      = false; // true once timer has been started since last reset
+let last         = 0;
 let raf;
+let sessionCount = 0;
 
 const audio = new Audio();
-audio.loop = true;
-audio.volume = 0;
+audio.loop    = true;
+audio.volume  = 0;
 let activeSound = 'none';
 
 function fmt(secs) {
@@ -37,9 +39,21 @@ function fmt(secs) {
 }
 
 function render() {
-  timeEl.textContent = fmt(remaining);
+  timeEl.textContent  = fmt(remaining);
   phaseEl.textContent = PHASES[mode];
-  toggleBtn.firstChild.textContent = running ? 'Pause' : 'Start';
+
+  const arrow = toggleBtn.querySelector('.arrow');
+  if (running) {
+    toggleBtn.firstChild.textContent = 'Pause ';
+    if (arrow) arrow.style.visibility = 'hidden';
+  } else if (started) {
+    toggleBtn.firstChild.textContent = 'Resume ';
+    if (arrow) { arrow.textContent = '→'; arrow.style.visibility = 'visible'; }
+  } else {
+    toggleBtn.firstChild.textContent = 'Start ';
+    if (arrow) { arrow.textContent = '→'; arrow.style.visibility = 'visible'; }
+  }
+
   document.title = `${fmt(remaining)} · ${PHASES[mode]} — Stillpoint`;
 }
 
@@ -50,21 +64,37 @@ function tick(now) {
   remaining = Math.max(0, remaining - dt);
   if (remaining <= 0) {
     running = false;
+    started = false;
+    if (mode === 'focus') {
+      sessionCount++;
+      if (sessionsEl) {
+        sessionsEl.textContent = sessionCount === 1
+          ? '1 session complete'
+          : `${sessionCount} sessions today`;
+      }
+    }
     bell();
     remaining = DURATIONS[mode];
+    // audio keeps playing between sessions — user can stop manually
   }
   render();
-  raf = requestAnimationFrame(tick);
+  if (running) raf = requestAnimationFrame(tick);
 }
 
 function startStop() {
   running = !running;
   if (running) {
+    started = true;
     last = performance.now();
-    if (activeSound !== 'none') fadeAudio(0.4);
+    if (activeSound !== 'none') {
+      // Start button is the user gesture that unlocks audio on mobile
+      audio.play().catch(() => {});
+      fadeAudio(0.4);
+    }
     raf = requestAnimationFrame(tick);
   } else {
     fadeAudio(0);
+    setTimeout(() => audio.pause(), 700);
     cancelAnimationFrame(raf);
   }
   render();
@@ -72,9 +102,11 @@ function startStop() {
 
 function reset() {
   running = false;
+  started = false;
   cancelAnimationFrame(raf);
   remaining = DURATIONS[mode];
   fadeAudio(0);
+  setTimeout(() => audio.pause(), 700);
   render();
 }
 
@@ -93,8 +125,12 @@ function setSound(name) {
     return;
   }
   audio.src = SOUNDS[name];
-  audio.play().catch(() => {});
-  if (running) fadeAudio(0.4);
+  if (running) {
+    // Timer already running — switch sound seamlessly
+    audio.play().catch(() => {});
+    fadeAudio(0.4);
+  }
+  // If not running: src is queued, will start when Start is pressed
 }
 
 function fadeAudio(target, dur = 700) {
@@ -108,12 +144,12 @@ function fadeAudio(target, dur = 700) {
   step();
 }
 
-// Soft "bell" using WebAudio (single sine ping)
+// Soft bell using WebAudio
 let audioCtx;
 function bell() {
   try {
     audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
-    const osc = audioCtx.createOscillator();
+    const osc  = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
     osc.frequency.value = 660;
     osc.type = 'sine';
@@ -131,7 +167,7 @@ resetBtn.addEventListener('click', reset);
 modeBtns.forEach((b) => b.addEventListener('click', () => setMode(b.dataset.mode)));
 soundBtns.forEach((b) => b.addEventListener('click', () => setSound(b.dataset.sound)));
 
-// Spacebar = toggle
+// Spacebar toggles timer
 window.addEventListener('keydown', (e) => {
   if (e.code === 'Space' && document.activeElement.tagName !== 'INPUT') {
     e.preventDefault();
