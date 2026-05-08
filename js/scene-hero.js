@@ -78,39 +78,48 @@ const fbm1 = (x) =>
   scene.add(new THREE.Mesh(skyGeo, skyMat));
 }
 
-// ─── Soft sun disc (additive glow)
+// ─── Sun: soft halo + crisp core (NormalBlending — no additive bloom/flicker)
 {
-  const sunGeo = new THREE.CircleGeometry(2.6, 64);
-  const sunMat = new THREE.ShaderMaterial({
-    transparent: true,
-    depthWrite: false,
-    blending: THREE.AdditiveBlending,
-    uniforms: { time: { value: 0 } },
-    vertexShader: `
-      varying vec2 vUv;
-      void main() {
-        vUv = uv;
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-      }
-    `,
+  const vert = `varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.0); }`;
+
+  // Outer halo — wide, very soft glow
+  const haloMat = new THREE.ShaderMaterial({
+    transparent: true, depthWrite: false, depthTest: false,
+    blending: THREE.NormalBlending,
+    vertexShader: vert,
     fragmentShader: `
       varying vec2 vUv;
-      uniform float time;
       void main() {
         float d = distance(vUv, vec2(0.5));
-        float core = smoothstep(0.32, 0.0, d);
-        float glow = smoothstep(0.5, 0.18, d) * 0.55;
-        float pulse = 0.92 + 0.08 * sin(time * 0.6);
-        vec3 col = mix(vec3(1.0, 0.92, 0.74), vec3(1.0, 0.78, 0.46), 1.0 - core);
-        gl_FragColor = vec4(col, (core + glow) * pulse);
-      }
-    `,
+        float a = pow(1.0 - smoothstep(0.0, 0.5, d), 1.8) * 0.50;
+        gl_FragColor = vec4(1.0, 0.88, 0.60, a);
+      }`,
   });
-  const sunMesh = new THREE.Mesh(sunGeo, sunMat);
-  sunMesh.position.set(-3.4, 2.6, -22);
-  scene.add(sunMesh);
-  sunMesh.userData.mat = sunMat;
-  scene.userData.sun = sunMesh;
+  const halo = new THREE.Mesh(new THREE.CircleGeometry(5.4, 96), haloMat);
+  halo.position.set(-3.4, 2.6, -30);
+  halo.renderOrder = -2;
+  scene.add(halo);
+
+  // Inner core — bright solid disc with feathered edge
+  const coreMat = new THREE.ShaderMaterial({
+    transparent: true, depthWrite: false, depthTest: false,
+    blending: THREE.NormalBlending,
+    vertexShader: vert,
+    fragmentShader: `
+      varying vec2 vUv;
+      void main() {
+        float d = distance(vUv, vec2(0.5));
+        float a = 1.0 - smoothstep(0.44, 0.5, d);
+        vec3 col = mix(vec3(1.0, 0.97, 0.86), vec3(1.0, 0.84, 0.56), smoothstep(0.0, 0.5, d));
+        gl_FragColor = vec4(col, a);
+      }`,
+  });
+  const core = new THREE.Mesh(new THREE.CircleGeometry(1.3, 64), coreMat);
+  core.position.set(-3.4, 2.6, -29.9);
+  core.renderOrder = -1;
+  scene.add(core);
+
+  scene.userData.sun = null; // no per-frame update needed
 }
 
 // ─── Layered hills
@@ -154,27 +163,37 @@ function buildHill(spec, idx) {
 }
 layerSpecs.forEach(buildHill);
 
-// ─── Drifting cloud strips
+// ─── Drifting cloud wisps (soft radial shader, no hard rectangle edges)
 const clouds = [];
 {
   const cloudGroup = new THREE.Group();
-  for (let i = 0; i < 8; i++) {
-    const w = 4 + Math.random() * 6;
-    const h = 0.45 + Math.random() * 0.4;
-    const geo = new THREE.PlaneGeometry(w, h, 1, 1);
-    const mat = new THREE.MeshBasicMaterial({
-      color: 0xfff8e8,
-      transparent: true,
-      opacity: 0.55 + Math.random() * 0.25,
-      depthWrite: false,
+  const cloudVert = `varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.0); }`;
+  const cloudFrag = `
+    varying vec2 vUv;
+    uniform float opacity;
+    void main(){
+      vec2 p = (vUv - 0.5) * 2.0;
+      p.y *= 2.4;
+      float r = length(p);
+      float a = pow(1.0 - smoothstep(0.0, 0.88, r), 2.2) * opacity;
+      gl_FragColor = vec4(1.0, 0.97, 0.88, a);
+    }`;
+
+  for (let i = 0; i < 9; i++) {
+    const w = 5 + Math.random() * 7;
+    const h = 1.6 + Math.random() * 0.8;
+    const mat = new THREE.ShaderMaterial({
+      transparent: true, depthWrite: false,
+      uniforms: { opacity: { value: 0.36 + Math.random() * 0.22 } },
+      vertexShader: cloudVert, fragmentShader: cloudFrag,
     });
-    const m = new THREE.Mesh(geo, mat);
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), mat);
     m.position.set(
-      (Math.random() - 0.5) * 35,
+      (Math.random() - 0.5) * 40,
       3.0 + Math.random() * 2.4,
-      -14 - Math.random() * 8
+      -14 - Math.random() * 10
     );
-    m.userData.speed = 0.04 + Math.random() * 0.06;
+    m.userData.speed = 0.03 + Math.random() * 0.05;
     m.userData.bobOffset = Math.random() * Math.PI * 2;
     cloudGroup.add(m);
     clouds.push(m);
@@ -299,9 +318,6 @@ function animate() {
   camera.position.x = mouse.x * 0.6 + Math.sin(t * 0.12) * 0.15;
   camera.position.y = 1.4 - mouse.y * 0.25 + Math.cos(t * 0.18) * 0.06;
   camera.lookAt(0, 1.6 + mouse.y * 0.05, 0);
-
-  // sun pulse
-  if (scene.userData.sun) scene.userData.sun.userData.mat.uniforms.time.value = t;
 
   // particles drift
   if (particles) {
