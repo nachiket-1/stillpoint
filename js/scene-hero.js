@@ -84,7 +84,7 @@ const fbm1 = (x) =>
 
   // Outer halo — wide, very soft glow
   const haloMat = new THREE.ShaderMaterial({
-    transparent: true, depthWrite: false, depthTest: false,
+    transparent: true, depthWrite: false, depthTest: true,
     blending: THREE.NormalBlending,
     vertexShader: vert,
     fragmentShader: `
@@ -97,12 +97,11 @@ const fbm1 = (x) =>
   });
   const halo = new THREE.Mesh(new THREE.CircleGeometry(5.4, 96), haloMat);
   halo.position.set(-3.4, 1.3, -30);
-  halo.renderOrder = -2;
   scene.add(halo);
 
   // Inner core — bright solid disc with feathered edge
   const coreMat = new THREE.ShaderMaterial({
-    transparent: true, depthWrite: false, depthTest: false,
+    transparent: true, depthWrite: false, depthTest: true,
     blending: THREE.NormalBlending,
     vertexShader: vert,
     fragmentShader: `
@@ -116,7 +115,6 @@ const fbm1 = (x) =>
   });
   const core = new THREE.Mesh(new THREE.CircleGeometry(1.3, 64), coreMat);
   core.position.set(-3.4, 1.3, -29.9);
-  core.renderOrder = -1;
   scene.add(core);
 
   scene.userData.sun = null; // no per-frame update needed
