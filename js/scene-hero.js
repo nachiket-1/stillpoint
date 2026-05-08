@@ -26,8 +26,8 @@ const sun = new THREE.DirectionalLight(0xfff1cc, 0.7);
 sun.position.set(-4, 6, 3);
 scene.add(sun);
 
-// Atmospheric fog (matches CSS cream-2)
-scene.fog = new THREE.Fog(0xefe6d2, 12, 60);
+// Atmospheric fog (soft, light haze)
+scene.fog = new THREE.Fog(0xf5ede0, 14, 65);
 
 // ─── Pseudo-noise (no deps)
 const hash = (n) => {
@@ -43,15 +43,15 @@ const noise1D = (x) => {
 const fbm1 = (x) =>
   noise1D(x) * 0.6 + noise1D(x * 2.13 + 5.7) * 0.25 + noise1D(x * 4.7 + 17.3) * 0.15;
 
-// ─── Sky gradient (soft warm dome)
+// ─── Sky gradient (soft light dome — airy, less golden)
 {
   const skyGeo = new THREE.SphereGeometry(80, 32, 16);
   const skyMat = new THREE.ShaderMaterial({
     side: THREE.BackSide,
     uniforms: {
-      topColor:    { value: new THREE.Color(0xf5e9c8) }, // warm cream
-      midColor:    { value: new THREE.Color(0xf1d5a3) }, // peach
-      bottomColor: { value: new THREE.Color(0xe9c684) }, // ochre haze
+      topColor:    { value: new THREE.Color(0xf8f3ec) }, // pale white-cream
+      midColor:    { value: new THREE.Color(0xf4e6cc) }, // very light peach
+      bottomColor: { value: new THREE.Color(0xedd8b0) }, // soft warm horizon
     },
     vertexShader: `
       varying vec3 vWorld;
@@ -96,7 +96,7 @@ const fbm1 = (x) =>
       }`,
   });
   const halo = new THREE.Mesh(new THREE.CircleGeometry(5.4, 96), haloMat);
-  halo.position.set(-3.4, 2.6, -30);
+  halo.position.set(-3.4, 1.3, -30);
   halo.renderOrder = -2;
   scene.add(halo);
 
@@ -115,7 +115,7 @@ const fbm1 = (x) =>
       }`,
   });
   const core = new THREE.Mesh(new THREE.CircleGeometry(1.3, 64), coreMat);
-  core.position.set(-3.4, 2.6, -29.9);
+  core.position.set(-3.4, 1.3, -29.9);
   core.renderOrder = -1;
   scene.add(core);
 

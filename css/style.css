@@ -167,9 +167,9 @@ canvas { display: block; }
 .overlay::before {
   content: ""; position: absolute; inset: 0;
   background: linear-gradient(to bottom,
-    rgba(246, 239, 226, 0) 30%,
-    rgba(246, 239, 226, 0.55) 72%,
-    rgba(246, 239, 226, 0.82) 100%);
+    rgba(246, 239, 226, 0) 35%,
+    rgba(246, 239, 226, 0.40) 72%,
+    rgba(246, 239, 226, 0.68) 100%);
   pointer-events: none;
   z-index: -1;
 }
@@ -266,14 +266,14 @@ canvas { display: block; }
 }
 .btn:hover .arrow { transform: translateX(4px); }
 
-/* ─── Page indicator (top right) ─── */
+/* ─── Page indicator (below nav, right) ─── */
 .indicator {
-  position: fixed; top: 32px; right: 48px;
+  position: fixed; top: 82px; right: 48px;
   font-family: var(--font-mono);
   font-size: 11px;
   letter-spacing: 0.14em;
   color: var(--ink-soft);
-  z-index: 60;
+  z-index: 30;
 }
 .indicator span { color: var(--ink); }
 

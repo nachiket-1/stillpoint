@@ -8,9 +8,9 @@ if (!stage) throw new Error('No #aboutArt');
 
 const scene = new THREE.Scene();
 
-const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 60);
-camera.position.set(0, 1.4, 5.6);
-camera.lookAt(0, 0.4, 0);
+const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 60);
+camera.position.set(0, 1.2, 6.2);
+camera.lookAt(0, -0.2, 0);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
