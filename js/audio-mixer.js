@@ -89,13 +89,15 @@ lanes.forEach((lane) => {
   const key = lane.dataset.key;
   const slider = lane.querySelector('.mixer__slider');
   if (!slider) return;
-  slider.addEventListener('input', () => {
+  const onSlide = () => {
     const t = tracks[key];
     if (t) {
       t.vol = slider.value / 100;
       t.audio.volume = t.vol;
     }
-  });
+  };
+  slider.addEventListener('input', onSlide);
+  slider.addEventListener('change', onSlide); // iOS Safari fires change, not input
 });
 
 // Pause everything if tab hidden (be polite)

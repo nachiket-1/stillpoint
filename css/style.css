@@ -546,6 +546,9 @@ body[data-page="about"] .bottom-line {
   border-radius: 50%; background: var(--sage-deep);
   cursor: pointer; border: none;
 }
+.mixer__slider {
+  touch-action: none;
+}
 
 /* ─── Focus page ─── */
 .focus {
