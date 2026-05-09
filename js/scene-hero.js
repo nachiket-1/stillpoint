@@ -120,6 +120,35 @@ const fbm1 = (x) =>
   scene.userData.sun = null; // no per-frame update needed
 }
 
+// ─── Sun rays — soft beams radiating outward (depthTest so mountains occlude lower rays)
+{
+  const rayVert = `varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.0); }`;
+  const rayFrag = `
+    varying vec2 vUv;
+    void main() {
+      float vMask = 1.0 - abs(vUv.y - 0.5) * 2.0;
+      vMask = pow(vMask, 1.4);
+      float hMask = 1.0 - abs(vUv.x - 0.5) * 2.0;
+      hMask = pow(hMask, 3.5);
+      float a = vMask * hMask * 0.22;
+      gl_FragColor = vec4(1.0, 0.92, 0.66, a);
+    }`;
+  const rayCount = 7;
+  for (let i = 0; i < rayCount; i++) {
+    const angle = (i / rayCount) * Math.PI * 2 + (Math.random() - 0.5) * 0.18;
+    const length = 13 + Math.random() * 5;
+    const rayMat = new THREE.ShaderMaterial({
+      transparent: true, depthWrite: false, depthTest: true,
+      blending: THREE.NormalBlending,
+      vertexShader: rayVert, fragmentShader: rayFrag,
+    });
+    const ray = new THREE.Mesh(new THREE.PlaneGeometry(0.65, length), rayMat);
+    ray.position.set(-3.4, 2.5, -29.95);
+    ray.rotation.z = angle;
+    scene.add(ray);
+  }
+}
+
 // ─── Layered hills
 const hillLayers = [];
 const layerSpecs = [
@@ -276,14 +305,16 @@ const birds = [];
     });
     return new THREE.Line(g, m);
   }
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < 7; i++) {
     const b = makeBird();
     b.position.set(
-      -10 - i * 4,
-      2.4 + Math.random() * 1.6,
-      -8 - Math.random() * 6
+      -10 - i * 3.5,
+      2.6 + Math.random() * 2.2,
+      -7 - Math.random() * 9
     );
-    b.userData.speed = 0.6 + Math.random() * 0.4;
+    const s = 0.7 + Math.random() * 0.7; // varied bird sizes
+    b.scale.setScalar(s);
+    b.userData.speed = 0.55 + Math.random() * 0.55;
     b.userData.flap = Math.random() * Math.PI * 2;
     scene.add(b);
     birds.push(b);
