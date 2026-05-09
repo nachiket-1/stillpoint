@@ -96,7 +96,7 @@ const fbm1 = (x) =>
       }`,
   });
   const halo = new THREE.Mesh(new THREE.CircleGeometry(5.4, 96), haloMat);
-  halo.position.set(-3.4, 2.0, -30);
+  halo.position.set(-3.4, 3.8, -30);
   scene.add(halo);
 
   // Inner core — bright solid disc with feathered edge
@@ -114,7 +114,7 @@ const fbm1 = (x) =>
       }`,
   });
   const core = new THREE.Mesh(new THREE.CircleGeometry(1.3, 64), coreMat);
-  core.position.set(-3.4, 2.0, -29.9);
+  core.position.set(-3.4, 3.8, -29.9);
   scene.add(core);
 
   scene.userData.sun = null; // no per-frame update needed
