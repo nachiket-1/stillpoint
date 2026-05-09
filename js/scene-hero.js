@@ -90,7 +90,7 @@ const tHelioAlpha     = loadFlat('assets/textures/heliophila_alpha.png', false);
   const vert = `varying vec2 vUv; void main(){ vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }`;
 
   const halo = new THREE.Mesh(new THREE.CircleGeometry(5.4, 96), new THREE.ShaderMaterial({
-    transparent: true, depthWrite: false, depthTest: false,
+    transparent: true, depthWrite: false, depthTest: true,
     blending: THREE.NormalBlending,
     vertexShader: vert,
     fragmentShader: `
@@ -102,11 +102,10 @@ const tHelioAlpha     = loadFlat('assets/textures/heliophila_alpha.png', false);
       }`,
   }));
   halo.position.set(SUN_POS.x, SUN_POS.y, SUN_POS.z);
-  halo.renderOrder = 2;
   scene.add(halo);
 
   const core = new THREE.Mesh(new THREE.CircleGeometry(1.3, 64), new THREE.ShaderMaterial({
-    transparent: true, depthWrite: false, depthTest: false,
+    transparent: true, depthWrite: false, depthTest: true,
     blending: THREE.NormalBlending,
     vertexShader: vert,
     fragmentShader: `
@@ -119,7 +118,6 @@ const tHelioAlpha     = loadFlat('assets/textures/heliophila_alpha.png', false);
       }`,
   }));
   core.position.set(SUN_POS.x, SUN_POS.y, SUN_POS.z + 0.1);
-  core.renderOrder = 3;
   scene.add(core);
 }
 
