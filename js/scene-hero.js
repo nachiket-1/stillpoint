@@ -1,6 +1,6 @@
 // Stillpoint — hero scene
-// Low-poly 3D terrain: Blender-style flat-shaded landscape with height-based
-// vertex colours, cone pine trees, snow-capped peaks, golden directional light.
+// Photographic-textured 3D Namaqualand landscape: sand → gravel → cliff
+// blended on terrain, scattered boulders, flower-bloom billboards.
 
 import * as THREE from 'three';
 
@@ -18,33 +18,44 @@ const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
-renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 stage.appendChild(renderer.domElement);
 
-// ─── Fog — atmospheric depth
 scene.fog = new THREE.FogExp2(0xf0e8d8, 0.018);
 
-// ─── Lights
-const hemi = new THREE.HemisphereLight(0xfff5dc, 0xc4a86a, 0.75);
-scene.add(hemi);
+// ─── Sun direction (used by terrain shader)
+const SUN_POS = new THREE.Vector3(-3.4, 3.5, -30);
+const SUN_DIR_FROM = new THREE.Vector3(-8, 14, 4).normalize(); // direction toward sun
 
-const sunLight = new THREE.DirectionalLight(0xffe8c0, 1.4);
-sunLight.position.set(-8, 14, 4);
-sunLight.castShadow = true;
-sunLight.shadow.mapSize.set(1024, 1024);
-sunLight.shadow.camera.near = 1;
-sunLight.shadow.camera.far  = 80;
-sunLight.shadow.camera.left = sunLight.shadow.camera.bottom = -30;
-sunLight.shadow.camera.right = sunLight.shadow.camera.top  =  30;
-sunLight.shadow.bias = -0.0005;
-scene.add(sunLight);
+// ─── Texture loading
+const loader = new THREE.TextureLoader();
+function loadTiling(path) {
+  const t = loader.load(path);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  t.colorSpace = THREE.SRGBColorSpace;
+  t.anisotropy = 8;
+  return t;
+}
+function loadFlat(path, isColor = true) {
+  const t = loader.load(path);
+  if (isColor) t.colorSpace = THREE.SRGBColorSpace;
+  t.anisotropy = 4;
+  return t;
+}
 
-const fillLight = new THREE.DirectionalLight(0xd8e8ff, 0.25);
-fillLight.position.set(6, 4, 8);
-scene.add(fillLight);
+const tSand    = loadTiling('assets/textures/sand.jpg');
+const tGravel  = loadTiling('assets/textures/gravel.jpg');
+const tCliff   = loadTiling('assets/textures/cliff.jpg');
+const tBoulder = loadTiling('assets/textures/boulder.jpg');
 
-// ─── Sky dome (same warm cream-to-peach gradient the user liked)
+// flower textures
+const tGazania        = loadFlat('assets/textures/gazania.jpg');
+const tGazaniaAlpha   = loadFlat('assets/textures/gazania_alpha.png', false);
+const tUrsinia        = loadFlat('assets/textures/ursinia.jpg');
+const tUrsiniaAlpha   = loadFlat('assets/textures/ursinia_alpha.png', false);
+const tHelio          = loadFlat('assets/textures/heliophila.jpg');
+const tHelioAlpha     = loadFlat('assets/textures/heliophila_alpha.png', false);
+
+// ─── Sky dome (warm cream gradient — matches user's preferred look)
 {
   const skyGeo = new THREE.SphereGeometry(180, 32, 16);
   const skyMat = new THREE.ShaderMaterial({
@@ -74,11 +85,11 @@ scene.add(fillLight);
   scene.add(new THREE.Mesh(skyGeo, skyMat));
 }
 
-// ─── Sun disc (same position that worked before)
+// ─── Sun disc
 {
   const vert = `varying vec2 vUv; void main(){ vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }`;
 
-  const haloMat = new THREE.ShaderMaterial({
+  const halo = new THREE.Mesh(new THREE.CircleGeometry(5.4, 96), new THREE.ShaderMaterial({
     transparent: true, depthWrite: false, depthTest: false,
     blending: THREE.NormalBlending,
     vertexShader: vert,
@@ -89,13 +100,12 @@ scene.add(fillLight);
         float a = pow(1.0 - smoothstep(0.0, 0.5, d), 1.8) * 0.50;
         gl_FragColor = vec4(1.0, 0.88, 0.60, a);
       }`,
-  });
-  const halo = new THREE.Mesh(new THREE.CircleGeometry(5.4, 96), haloMat);
-  halo.position.set(-3.4, 3.5, -30);
+  }));
+  halo.position.set(SUN_POS.x, SUN_POS.y, SUN_POS.z);
   halo.renderOrder = 2;
   scene.add(halo);
 
-  const coreMat = new THREE.ShaderMaterial({
+  const core = new THREE.Mesh(new THREE.CircleGeometry(1.3, 64), new THREE.ShaderMaterial({
     transparent: true, depthWrite: false, depthTest: false,
     blending: THREE.NormalBlending,
     vertexShader: vert,
@@ -107,9 +117,8 @@ scene.add(fillLight);
         vec3 col = mix(vec3(1.0, 0.97, 0.86), vec3(1.0, 0.84, 0.56), smoothstep(0.0, 0.5, d));
         gl_FragColor = vec4(col, a);
       }`,
-  });
-  const core = new THREE.Mesh(new THREE.CircleGeometry(1.3, 64), coreMat);
-  core.position.set(-3.4, 3.5, -29.9);
+  }));
+  core.position.set(SUN_POS.x, SUN_POS.y, SUN_POS.z + 0.1);
   core.renderOrder = 3;
   scene.add(core);
 }
@@ -126,107 +135,158 @@ const fbm = (x, y) =>
   n2(x,     y)     * 0.500 +
   n2(x*2.1, y*2.1) * 0.250 +
   n2(x*4.3, y*4.3) * 0.125 +
-  n2(x*8.7, y*8.7) * 0.063 +
-  n2(x*17,  y*17)  * 0.031;
+  n2(x*8.7, y*8.7) * 0.063;
 
-// terrain height function (reused for tree placement)
+const TERRAIN_OFFSET_Y = -1.5;
+const TERRAIN_OFFSET_Z = -10;
+
 const terrainH = (x, z) => {
   const nx = x * 0.065 + 0.5;
   const nz = z * 0.065 + 0.5;
-  const base = fbm(nx, nz);
-  // sharp peaks: raise high areas more aggressively
-  return Math.pow(Math.max(base - 0.18, 0) / 0.82, 1.5) * 9.5;
+  return Math.pow(Math.max(fbm(nx, nz) - 0.18, 0) / 0.82, 1.5) * 9.5;
 };
 
-// ─── 3D Terrain — flat-shaded, vertex-coloured
+// ─── Textured 3D terrain — sand/gravel/cliff blended by height + slope
 {
-  const SIZE = 90, SEGS = 160;
+  const SIZE = 100, SEGS = 180;
   const geo  = new THREE.PlaneGeometry(SIZE, SIZE, SEGS, SEGS);
   geo.rotateX(-Math.PI / 2);
 
-  const pos  = geo.attributes.position;
-  const cols = new Float32Array(pos.count * 3);
-
-  // colour palette (low-poly landscape)
-  const cValley = new THREE.Color(0x5a7a42);  // lush green valley
-  const cSlope  = new THREE.Color(0x8a9a66);  // sage slope
-  const cRock   = new THREE.Color(0x8a7e6a);  // rocky grey-brown
-  const cStone  = new THREE.Color(0xb0a898);  // pale stone
-  const cSnow   = new THREE.Color(0xeeeae4);  // snow cap
-
+  const pos = geo.attributes.position;
   for (let i = 0; i < pos.count; i++) {
     const x = pos.getX(i);
     const z = pos.getZ(i);
-    const h = terrainH(x, z);
-    pos.setY(i, h);
-
-    // height-based colour
-    let col;
-    if      (h < 0.40) col = cValley;
-    else if (h < 1.60) col = new THREE.Color().lerpColors(cValley, cSlope, (h-0.40)/1.20);
-    else if (h < 3.20) col = new THREE.Color().lerpColors(cSlope,  cRock,  (h-1.60)/1.60);
-    else if (h < 5.00) col = new THREE.Color().lerpColors(cRock,   cStone, (h-3.20)/1.80);
-    else               col = new THREE.Color().lerpColors(cStone,  cSnow,  Math.min((h-5.00)/1.50, 1.0));
-
-    cols[i * 3]     = col.r;
-    cols[i * 3 + 1] = col.g;
-    cols[i * 3 + 2] = col.b;
+    pos.setY(i, terrainH(x, z));
   }
-
-  geo.setAttribute('color', new THREE.BufferAttribute(cols, 3));
   geo.computeVertexNormals();
 
-  const mat = new THREE.MeshStandardMaterial({
-    vertexColors: true,
-    roughness: 0.96,
-    metalness: 0.0,
-    flatShading: true,
+  const terrainMat = new THREE.ShaderMaterial({
+    uniforms: {
+      tSand:   { value: tSand },
+      tGravel: { value: tGravel },
+      tCliff:  { value: tCliff },
+      sunDir:  { value: SUN_DIR_FROM },
+      ambient: { value: new THREE.Color(0xa8b8c4).convertSRGBToLinear() },
+      sunCol:  { value: new THREE.Color(0xffe8c0).convertSRGBToLinear() },
+      fogColor:    { value: new THREE.Color(0xf0e8d8).convertSRGBToLinear() },
+      fogDensity:  { value: 0.018 },
+    },
+    vertexShader: `
+      varying vec2 vUv;
+      varying vec3 vWorldPos;
+      varying vec3 vWorldNormal;
+      varying float vViewDist;
+      void main(){
+        vUv = uv;
+        vec4 wp = modelMatrix * vec4(position, 1.0);
+        vWorldPos = wp.xyz;
+        vWorldNormal = normalize((modelMatrix * vec4(normal, 0.0)).xyz);
+        vec4 mv = viewMatrix * wp;
+        vViewDist = -mv.z;
+        gl_Position = projectionMatrix * mv;
+      }`,
+    fragmentShader: `
+      uniform sampler2D tSand, tGravel, tCliff;
+      uniform vec3 sunDir, ambient, sunCol, fogColor;
+      uniform float fogDensity;
+      varying vec2 vUv;
+      varying vec3 vWorldPos;
+      varying vec3 vWorldNormal;
+      varying float vViewDist;
+
+      void main(){
+        // Sample at varied tiling for natural look
+        vec3 sand   = texture2D(tSand,   vUv * 22.0).rgb;
+        vec3 gravel = texture2D(tGravel, vUv * 16.0).rgb;
+        vec3 cliff  = texture2D(tCliff,  vUv * 10.0).rgb;
+
+        float h     = vWorldPos.y;
+        float slope = clamp(vWorldNormal.y, 0.0, 1.0); // 1=flat, 0=vertical
+
+        // Height blends
+        float m1 = smoothstep(-0.5, 1.4, h);   // sand → gravel
+        float m2 = smoothstep( 1.8, 4.5, h);   // gravel → cliff
+        vec3 col = mix(sand, gravel, m1);
+        col      = mix(col,  cliff,  m2);
+
+        // Steep faces always show cliff regardless of altitude
+        float steepness = 1.0 - smoothstep(0.45, 0.78, slope);
+        col = mix(col, cliff, steepness);
+
+        // Lambert lighting
+        float diff = max(dot(vWorldNormal, sunDir), 0.0);
+        vec3 lit   = col * (ambient + sunCol * diff);
+
+        // Distance fog
+        float fogF = 1.0 - exp(-fogDensity * fogDensity * vViewDist * vViewDist);
+        lit = mix(lit, fogColor, fogF);
+
+        gl_FragColor = vec4(lit, 1.0);
+      }`,
   });
 
-  const terrain = new THREE.Mesh(geo, mat);
-  terrain.receiveShadow = true;
-  terrain.castShadow    = false;
-  terrain.position.set(0, -1.5, -10);
+  const terrain = new THREE.Mesh(geo, terrainMat);
+  terrain.position.set(0, TERRAIN_OFFSET_Y, TERRAIN_OFFSET_Z);
   scene.add(terrain);
 }
 
-// ─── Low-poly cone pine trees (Blender classic)
+// ─── Boulders scattered across lower terrain
 {
-  const treeMat  = new THREE.MeshStandardMaterial({ color: 0x2e4a28, flatShading: true, roughness: 1 });
-  const trunkMat = new THREE.MeshStandardMaterial({ color: 0x5a3d26, flatShading: true, roughness: 1 });
-
-  const treePositions = [];
-  // Scatter candidates across the terrain
-  for (let attempt = 0; attempt < 600; attempt++) {
-    const x = (Math.random() - 0.5) * 72;
-    const z = (Math.random() - 0.5) * 72;
-    const h = terrainH(x, z - 10); // offset matches terrain.position.z
-    if (h > 0.25 && h < 2.2) {    // only in valley/slope zone, not peaks
-      treePositions.push({ x, z: z - 10, h });
-      if (treePositions.length >= 90) break;
-    }
-  }
-
-  treePositions.forEach(({ x, z, h }) => {
-    const scale  = 0.5 + Math.random() * 0.7;
-    const layers = 2 + Math.floor(Math.random() * 2); // 2-3 cone layers
-
-    for (let l = 0; l < layers; l++) {
-      const r   = (0.55 - l * 0.12) * scale;
-      const ht  = (0.85 + l * 0.1)  * scale;
-      const yOff = l * 0.55 * scale;
-      const cone = new THREE.Mesh(new THREE.ConeGeometry(r, ht, 6, 1), treeMat);
-      cone.position.set(x, h - 1.5 + yOff + ht * 0.5, z);
-      cone.rotation.y = Math.random() * Math.PI * 2;
-      cone.castShadow = true;
-      scene.add(cone);
-    }
-    // Trunk
-    const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.06 * scale, 0.09 * scale, 0.4 * scale, 5), trunkMat);
-    trunk.position.set(x, h - 1.5 + 0.2 * scale, z);
-    trunk.castShadow = true;
-    scene.add(trunk);
+  const boulderMat = new THREE.MeshStandardMaterial({
+    map: tBoulder,
+    roughness: 0.95,
+    metalness: 0.0,
   });
+
+  let placed = 0;
+  for (let attempt = 0; attempt < 600 && placed < 22; attempt++) {
+    const x = (Math.random() - 0.5) * 70;
+    const z = (Math.random() - 0.5) * 70 + TERRAIN_OFFSET_Z;
+    const localZ = z - TERRAIN_OFFSET_Z;
+    const h = terrainH(x, localZ);
+    if (h < 0.3 || h > 3.5) continue;
+
+    const r = 0.35 + Math.random() * 0.7;
+    const rock = new THREE.Mesh(new THREE.IcosahedronGeometry(r, 0), boulderMat);
+    rock.position.set(x, TERRAIN_OFFSET_Y + h - r * 0.25, z);
+    rock.rotation.set(Math.random()*Math.PI, Math.random()*Math.PI, Math.random()*Math.PI);
+    rock.scale.set(1, 0.75 + Math.random() * 0.4, 1);
+    scene.add(rock);
+    placed++;
+  }
+}
+
+// ─── Flower bloom billboards (Namaqualand spring colour)
+{
+  const flowerDefs = [
+    { map: tGazania,    alpha: tGazaniaAlpha,   scale: 0.55 },
+    { map: tUrsinia,    alpha: tUrsiniaAlpha,   scale: 0.50 },
+    { map: tHelio,      alpha: tHelioAlpha,     scale: 0.45 },
+  ];
+  const flowerMats = flowerDefs.map((def) => new THREE.SpriteMaterial({
+    map: def.map,
+    alphaMap: def.alpha,
+    transparent: true,
+    alphaTest: 0.4,
+    depthWrite: false,
+  }));
+
+  let placed = 0;
+  for (let attempt = 0; attempt < 1200 && placed < 140; attempt++) {
+    const x = (Math.random() - 0.5) * 60;
+    const z = (Math.random() - 0.5) * 50 + TERRAIN_OFFSET_Z + 5;
+    const localZ = z - TERRAIN_OFFSET_Z;
+    const h = terrainH(x, localZ);
+    if (h < 0.05 || h > 1.6) continue;
+
+    const idx = Math.floor(Math.random() * flowerDefs.length);
+    const sprite = new THREE.Sprite(flowerMats[idx]);
+    const scale = flowerDefs[idx].scale * (0.7 + Math.random() * 0.7);
+    sprite.scale.set(scale, scale, 1);
+    sprite.position.set(x, TERRAIN_OFFSET_Y + h + scale * 0.45, z);
+    scene.add(sprite);
+    placed++;
+  }
 }
 
 // ─── Drifting cloud wisps
@@ -262,7 +322,7 @@ const clouds = [];
 // ─── Pollen motes
 let particles, particleVel;
 {
-  const count = 500;
+  const count = 480;
   const positions = new Float32Array(count * 3);
   const sizes     = new Float32Array(count);
   const phases    = new Float32Array(count);
@@ -297,7 +357,7 @@ let particles, particleVel;
       varying float vA;
       void main(){
         float a = smoothstep(0.5,0.0,length(gl_PointCoord-0.5));
-        gl_FragColor = vec4(1.0,0.82,0.46, a*vA*0.65);
+        gl_FragColor = vec4(1.0,0.82,0.46, a*vA*0.55);
       }`,
   });
   particles = new THREE.Points(geo, mat);
@@ -320,6 +380,12 @@ for (let i = 0; i < 4; i++) {
   birds.push(b);
 }
 
+// ─── Add hemisphere + directional light for boulders (MeshStandardMaterial)
+scene.add(new THREE.HemisphereLight(0xfff5dc, 0xc4a86a, 0.75));
+const sunLight = new THREE.DirectionalLight(0xffe8c0, 1.4);
+sunLight.position.set(-8, 14, 4);
+scene.add(sunLight);
+
 // ─── Mouse parallax
 const mouse = { x: 0, y: 0, tx: 0, ty: 0 };
 window.addEventListener('mousemove', (e) => {
@@ -341,12 +407,10 @@ function animate() {
   mouse.x += (mouse.tx - mouse.x) * 0.04;
   mouse.y += (mouse.ty - mouse.y) * 0.04;
 
-  // Gentle camera drift over 3D terrain
   camera.position.x = mouse.x * 0.8 + Math.sin(t * 0.10) * 0.3;
   camera.position.y = 6.5 - mouse.y * 0.4 + Math.sin(t * 0.15) * 0.1;
   camera.lookAt(mouse.x * 0.3, 0.5, -5);
 
-  // particles
   if (particles) {
     particles.userData.mat.uniforms.time.value = t;
     const pos = particles.geometry.attributes.position;
@@ -362,14 +426,12 @@ function animate() {
     pos.needsUpdate = true;
   }
 
-  // clouds
   clouds.forEach((c) => {
     c.position.x += c.userData.speed * dt * 0.4;
     c.position.y += Math.sin(t * 0.3 + c.userData.bobOffset) * 0.001;
     if (c.position.x > 44) c.position.x = -44;
   });
 
-  // birds
   birds.forEach((b) => {
     b.position.x += b.userData.speed * dt;
     b.position.y += Math.sin(t * 3.5 + b.userData.flap) * 0.006;
