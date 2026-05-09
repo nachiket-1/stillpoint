@@ -58,9 +58,9 @@ const SUN_DIR = SUN_POS.clone().normalize();
         vec3 horizon = vec3(0.97, 0.81, 0.56);
         vec3 c = mix(horizon, midsky, smoothstep(-0.05, 0.32, h));
         c = mix(c, zenith, smoothstep(0.22, 0.72, h));
-        c += vec3(1.0, 0.64, 0.24) * pow(sd, 8.0) * 1.3;
-        c += vec3(1.0, 0.82, 0.46) * pow(sd, 3.0) * 0.28;
-        c += vec3(0.95, 0.78, 0.52) * pow(sd, 1.2) * 0.10;
+        c += vec3(1.0, 0.64, 0.24) * pow(sd, 12.0) * 0.50;
+        c += vec3(1.0, 0.82, 0.46) * pow(sd,  5.0) * 0.12;
+        c += vec3(0.95, 0.78, 0.52) * pow(sd,  2.0) * 0.04;
         gl_FragColor = vec4(c, 1.0);
       }`,
   });
@@ -121,7 +121,7 @@ const fbm1    = (x) => noise1D(x)*0.6+noise1D(x*2.13+5.7)*0.25+noise1D(x*4.7+17.
         float d = distance(vUv, vec2(0.5));
         float a = 1.0 - smoothstep(0.38, 0.5, d);
         vec3 col = mix(vec3(1.0,0.98,0.92), vec3(1.0,0.86,0.60), d*2.0);
-        gl_FragColor = vec4(col * 2.6, a);
+        gl_FragColor = vec4(col * 1.5, a);
       }`,
   }));
   core.position.set(SUN_POS.x, SUN_POS.y, SUN_POS.z + 0.2);
@@ -175,7 +175,7 @@ let particles, vel;
 const composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
 
-const bloomPass = new UnrealBloomPass(new THREE.Vector2(W, H), 0.55, 0.60, 0.28);
+const bloomPass = new UnrealBloomPass(new THREE.Vector2(W, H), 0.38, 0.50, 0.78);
 composer.addPass(bloomPass);
 
 const vignettePass = new ShaderPass({

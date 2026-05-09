@@ -70,10 +70,10 @@ scene.fog = new THREE.Fog(0xf5ede0, 14, 65);
         vec3 c = mix(horizon, midsky, smoothstep(-0.05, 0.32, h));
         c = mix(c, zenith, smoothstep(0.22, 0.72, h));
 
-        // Atmospheric sun scatter (Mie-like)
-        c += vec3(1.0, 0.62, 0.22) * pow(sd, 8.0) * 1.40;
-        c += vec3(1.0, 0.80, 0.44) * pow(sd, 3.0) * 0.35;
-        c += vec3(0.96, 0.78, 0.52) * pow(sd, 1.2) * 0.12;
+        // Atmospheric sun scatter (Mie-like — tight around sun only)
+        c += vec3(1.0, 0.62, 0.22) * pow(sd, 12.0) * 0.55;
+        c += vec3(1.0, 0.80, 0.44) * pow(sd,  5.0) * 0.14;
+        c += vec3(0.96, 0.78, 0.52) * pow(sd,  2.0) * 0.05;
 
         gl_FragColor = vec4(c, 1.0);
       }`,
@@ -126,8 +126,8 @@ layerSpecs.forEach((spec, idx) => {
       varying vec2 vUv;
       void main(){
         float d = distance(vUv, vec2(0.5));
-        float a = pow(1.0 - smoothstep(0.0, 0.5, d), 1.4) * 0.62;
-        gl_FragColor = vec4(1.0, 0.80, 0.50, a);
+        float a = pow(1.0 - smoothstep(0.0, 0.5, d), 1.8) * 0.38;
+        gl_FragColor = vec4(1.0, 0.85, 0.58, a);
       }`,
   });
   const halo = new THREE.Mesh(new THREE.CircleGeometry(8.0, 64), haloMat);
@@ -146,7 +146,7 @@ layerSpecs.forEach((spec, idx) => {
         float d = distance(vUv, vec2(0.5));
         float a = 1.0 - smoothstep(0.36, 0.5, d);
         vec3 col = mix(vec3(1.0, 0.98, 0.92), vec3(1.0, 0.86, 0.60), d * 2.0);
-        gl_FragColor = vec4(col * 2.8, a);
+        gl_FragColor = vec4(col * 1.5, a);
       }`,
   });
   const core = new THREE.Mesh(new THREE.CircleGeometry(2.2, 64), coreMat);
@@ -285,7 +285,7 @@ for (let i = 0; i < 3; i++) {
 const composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
 
-const bloomPass = new UnrealBloomPass(new THREE.Vector2(W, H), 0.85, 0.55, 0.32);
+const bloomPass = new UnrealBloomPass(new THREE.Vector2(W, H), 0.38, 0.50, 0.78);
 composer.addPass(bloomPass);
 
 const vignettePass = new ShaderPass({
