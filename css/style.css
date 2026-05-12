@@ -605,9 +605,35 @@ body[data-page="about"] .bottom-line {
     width: 100%;
   }
   .mixer__name { font-size: 13px; min-width: unset; }
-  .mixer__slider { width: 100%; height: 4px; }
-  .mixer__slider::-webkit-slider-thumb { width: 22px; height: 22px; }
-  .mixer__slider::-moz-range-thumb   { width: 22px; height: 22px; }
+
+  /* 44px tall input = reliable touch target; track rendered via pseudo-element */
+  .mixer__slider { width: 100%; height: 44px; background: transparent; }
+  .mixer__slider::-webkit-slider-runnable-track {
+    height: 4px; border-radius: 2px;
+    background: linear-gradient(to right,
+      var(--sage-deep) 0%, var(--sage-deep) var(--fill, 60%),
+      var(--hairline-strong) var(--fill, 60%), var(--hairline-strong) 100%
+    );
+  }
+  .mixer__slider::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 26px; height: 26px; border-radius: 50%;
+    background: var(--sage-deep);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.24);
+    margin-top: -11px;
+  }
+  .mixer__slider::-moz-range-track {
+    height: 4px; border-radius: 2px;
+    background: linear-gradient(to right,
+      var(--sage-deep) 0%, var(--sage-deep) var(--fill, 60%),
+      var(--hairline-strong) var(--fill, 60%), var(--hairline-strong) 100%
+    );
+  }
+  .mixer__slider::-moz-range-thumb {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: var(--sage-deep); border: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.24);
+  }
 }
 
 /* ─── Focus page ─── */

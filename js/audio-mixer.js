@@ -91,6 +91,25 @@ cards.forEach((card) => {
   });
 });
 
+// Direct touch→value mapping for mobile (bypasses iOS native range-input quirks).
+// touchstart is passive (no jank); touchmove calls preventDefault to block
+// page scroll while the user drags horizontally.
+function patchSliderTouch(slider, onChange) {
+  const toVal = (clientX) => {
+    const r = slider.getBoundingClientRect();
+    return Math.round(Math.max(0, Math.min(100, (clientX - r.left) / r.width * 100)));
+  };
+  slider.addEventListener('touchstart', (e) => {
+    slider.value = toVal(e.touches[0].clientX);
+    onChange();
+  }, { passive: true });
+  slider.addEventListener('touchmove', (e) => {
+    e.preventDefault();
+    slider.value = toVal(e.touches[0].clientX);
+    onChange();
+  }, { passive: false });
+}
+
 // Sliders: update volume + visual fill, restore from + persist to localStorage
 lanes.forEach((lane) => {
   const key    = lane.dataset.key;
@@ -117,6 +136,7 @@ lanes.forEach((lane) => {
   };
   slider.addEventListener('input', onSlide);
   slider.addEventListener('change', onSlide); // iOS Safari fires change, not input
+  patchSliderTouch(slider, onSlide);          // direct touch handler for mobile
 });
 
 // Pause everything when tab is hidden
