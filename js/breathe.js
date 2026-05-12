@@ -103,6 +103,11 @@ function draw() {
   const h = canvas.clientHeight;
   ctx.clearRect(0, 0, w, h);
 
+  const dark = document.documentElement.dataset.theme === 'dark';
+  const discOuter = dark ? 'rgba(26, 24, 18, 0.95)' : 'rgba(246, 239, 226, 0.95)';
+  const discInner = dark ? 'rgba(26, 24, 18, 0.20)' : 'rgba(246, 239, 226, 0.20)';
+  const ringColor = dark ? 'rgba(246, 239, 226, 0.18)' : 'rgba(34, 35, 31, 0.18)';
+
   const cx = w / 2, cy = h / 2;
   const minSide = Math.min(w, h);
   const minR = minSide * 0.10;
@@ -119,13 +124,13 @@ function draw() {
 
   // ring
   ctx.lineWidth = 1.2;
-  ctx.strokeStyle = 'rgba(34, 35, 31, 0.18)';
+  ctx.strokeStyle = ringColor;
   ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke();
 
   // inner disc
   const inner = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
-  inner.addColorStop(0,   'rgba(246, 239, 226, 0.95)');
-  inner.addColorStop(1,   'rgba(246, 239, 226, 0.20)');
+  inner.addColorStop(0, discOuter);
+  inner.addColorStop(1, discInner);
   ctx.fillStyle = inner;
   ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fill();
 }

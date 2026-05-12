@@ -179,6 +179,12 @@ function bell() {
   } catch {}
 }
 
+// When returning to a hidden tab, reset `last` so the timer doesn't
+// skip forward by however long the tab was in the background.
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && running) last = performance.now();
+});
+
 toggleBtn.addEventListener('click', startStop);
 resetBtn.addEventListener('click', reset);
 modeBtns.forEach((b) => b.addEventListener('click', () => setMode(b.dataset.mode)));
