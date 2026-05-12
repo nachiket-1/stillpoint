@@ -583,7 +583,31 @@ body[data-page="about"] .bottom-line {
   cursor: pointer; border: none;
 }
 .mixer__slider {
-  touch-action: none;
+  touch-action: pan-y;
+}
+
+@media (max-width: 720px) {
+  .mixer {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 16px;
+    row-gap: 14px;
+    align-items: start;
+    bottom: 16px;
+    padding: 14px 16px 16px;
+    overflow-x: hidden;
+  }
+  .mixer__title { grid-column: 1 / -1; }
+  .mixer__lane {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 7px;
+    width: 100%;
+  }
+  .mixer__name { font-size: 13px; min-width: unset; }
+  .mixer__slider { width: 100%; height: 4px; }
+  .mixer__slider::-webkit-slider-thumb { width: 22px; height: 22px; }
+  .mixer__slider::-moz-range-thumb   { width: 22px; height: 22px; }
 }
 
 /* ─── Focus page ─── */
