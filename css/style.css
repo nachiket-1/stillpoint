@@ -979,8 +979,11 @@ body[data-page="about"] .bottom-line {
     rgba(26, 24, 18, 0.78) 100%);
 }
 [data-theme="dark"] .focus__panel {
-  background: rgba(20, 18, 14, 0.88);
-  border-color: rgba(246, 239, 226, 0.10);
+  background: rgba(14, 12, 9, 0.92);
+  border-color: rgba(246, 239, 226, 0.08);
+  box-shadow: 0 32px 64px -24px rgba(0,0,0,0.68),
+              0 0 0 1px rgba(246, 239, 226, 0.06) inset,
+              0 0 80px -25px rgba(200, 158, 78, 0.14);
 }
 [data-theme="dark"] .mixer {
   background: rgba(20, 18, 14, 0.96);
@@ -994,4 +997,48 @@ body[data-page="about"] .bottom-line {
       rgba(26, 24, 18, 0.72) 70%,
       rgba(26, 24, 18, 0) 100%);
   }
+}
+
+/* ─── Dark mode: night tint over the daytime 3D scenes */
+[data-theme="dark"] #stage::after,
+[data-theme="dark"] .focus .scene-stage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+}
+[data-theme="dark"] #stage::after {
+  /* Heavier at the top (sky) where it reads most clearly as "day") */
+  background: linear-gradient(to bottom,
+    rgba(8, 6, 20, 0.72) 0%,
+    rgba(8, 6, 20, 0.52) 55%,
+    rgba(8, 6, 20, 0.28) 100%);
+}
+[data-theme="dark"] .focus .scene-stage::after {
+  background: rgba(8, 6, 20, 0.58);
+}
+
+/* ─── Dark mode: focus timer warm glow */
+[data-theme="dark"] .focus__time {
+  text-shadow: 0 0 60px rgba(216, 169, 88, 0.22);
+}
+
+/* ─── Dark mode: ghost button — fix hardcoded cream background */
+[data-theme="dark"] .btn--ghost {
+  background: rgba(246, 239, 226, 0.06);
+  border-color: rgba(246, 239, 226, 0.20);
+}
+[data-theme="dark"] .btn--ghost:hover {
+  background: rgba(246, 239, 226, 0.12);
+  border-color: rgba(246, 239, 226, 0.36);
+  transform: translateY(-2px);
+}
+
+/* ─── Dark mode: daily card ochre separator */
+[data-theme="dark"] .daily {
+  border-top-color: rgba(216, 169, 88, 0.24);
+}
+[data-theme="dark"] .daily__text {
+  opacity: 0.92;
 }
