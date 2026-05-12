@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://nachiket-1.github.io/stillpoint/sitemap.xml

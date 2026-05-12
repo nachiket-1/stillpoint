@@ -35,6 +35,7 @@ function updateIcon() {
   btn.textContent = t === 'dark' ? '☀' : '☾';
   const target = t === 'dark' ? 'light' : 'dark';
   btn.setAttribute('aria-label', `Switch to ${target} theme`);
+  btn.setAttribute('aria-pressed', t === 'dark' ? 'true' : 'false');
   btn.title = `Switch to ${target}`;
 }
 

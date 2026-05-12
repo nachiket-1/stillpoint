@@ -45,16 +45,19 @@ function initScene(canvas, build) {
     camera.aspect = r.width / r.height;
     camera.updateProjectionMatrix();
     renderer.render(scene, camera);
-    raf = requestAnimationFrame(loop);
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) raf = requestAnimationFrame(loop);
+    else raf = null;
   }
   loop();
 
   // Pause when offscreen for perf
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   const io = new IntersectionObserver((entries) => {
     entries.forEach((e) => {
       if (!e.isIntersecting) {
         cancelAnimationFrame(raf);
-      } else if (!raf) {
+        raf = null;
+      } else if (!raf && !reducedMotion.matches) {
         loop();
       }
     });

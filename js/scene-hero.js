@@ -388,7 +388,7 @@ function animate() {
   });
 
   renderer.render(scene, camera);
-  requestAnimationFrame(animate);
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(animate);
 }
 animate();
 

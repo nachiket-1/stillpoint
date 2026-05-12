@@ -126,7 +126,7 @@ function animate() {
   camera.position.y = 1.2 + Math.cos(t * 0.12) * 0.05;
   camera.lookAt(0, 1.5, 0);
   renderer.render(scene, camera);
-  requestAnimationFrame(animate);
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(animate);
 }
 animate();
 

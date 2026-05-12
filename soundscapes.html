@@ -14,6 +14,8 @@
 <meta property="og:url" content="https://nachiket-1.github.io/stillpoint/soundscapes.html" />
 <meta property="og:type" content="website" />
 <meta name="twitter:card" content="summary_large_image" />
+<link rel="canonical" href="https://nachiket-1.github.io/stillpoint/soundscapes.html" />
+<link rel="modulepreload" href="https://unpkg.com/three@0.160.0/build/three.module.js" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -28,7 +30,7 @@
 </head>
 <body data-page="soundscapes">
 
-<div class="boot" id="boot"><span class="boot__dot"></span></div>
+<div class="boot" id="boot" aria-hidden="true"><span class="boot__dot"></span></div>
 
 <nav class="nav" id="nav">
   <a class="nav__brand" href="index.html">stillpoint<span>.</span></a>
@@ -47,6 +49,7 @@
 
 <div class="indicator">002 / <span>SOUNDSCAPES</span></div>
 
+<main>
 <section class="scapes">
   <header class="scapes__head">
     <h1 class="reveal">Six worlds,<br/>one <em>breath</em>.</h1>
@@ -56,7 +59,7 @@
   <div class="scape-grid">
     <article class="scape" data-key="dawn" data-audio="assets/audio/dawn.mp3">
       <canvas></canvas>
-      <div class="scape__play" role="button" aria-label="Play Dawn"><span>▶</span><span class="scape__pulse"></span></div>
+      <div class="scape__play" role="button" tabindex="0" aria-label="Play Dawn"><span>▶</span><span class="scape__pulse"></span></div>
       <div class="scape__label">
         <div>
           <h3>Dawn</h3>
@@ -68,7 +71,7 @@
 
     <article class="scape" data-key="fireplace" data-audio="assets/audio/fireplace.mp3">
       <canvas></canvas>
-      <div class="scape__play" role="button" aria-label="Play Hearth"><span>▶</span><span class="scape__pulse"></span></div>
+      <div class="scape__play" role="button" tabindex="0" aria-label="Play Hearth"><span>▶</span><span class="scape__pulse"></span></div>
       <div class="scape__label">
         <div>
           <h3>Hearth</h3>
@@ -80,7 +83,7 @@
 
     <article class="scape" data-key="ocean" data-audio="assets/audio/ocean.mp3">
       <canvas></canvas>
-      <div class="scape__play" role="button" aria-label="Play Tideline"><span>▶</span><span class="scape__pulse"></span></div>
+      <div class="scape__play" role="button" tabindex="0" aria-label="Play Tideline"><span>▶</span><span class="scape__pulse"></span></div>
       <div class="scape__label">
         <div>
           <h3>Tideline</h3>
@@ -92,7 +95,7 @@
 
     <article class="scape" data-key="forest" data-audio="assets/audio/forest.mp3">
       <canvas></canvas>
-      <div class="scape__play" role="button" aria-label="Play Nightwood"><span>▶</span><span class="scape__pulse"></span></div>
+      <div class="scape__play" role="button" tabindex="0" aria-label="Play Nightwood"><span>▶</span><span class="scape__pulse"></span></div>
       <div class="scape__label">
         <div>
           <h3>Nightwood</h3>
@@ -104,7 +107,7 @@
 
     <article class="scape" data-key="rain" data-audio="assets/audio/rain.mp3">
       <canvas></canvas>
-      <div class="scape__play" role="button" aria-label="Play Mist"><span>▶</span><span class="scape__pulse"></span></div>
+      <div class="scape__play" role="button" tabindex="0" aria-label="Play Mist"><span>▶</span><span class="scape__pulse"></span></div>
       <div class="scape__label">
         <div>
           <h3>Mist</h3>
@@ -116,7 +119,7 @@
 
     <article class="scape" data-key="stream" data-audio="assets/audio/stream.mp3">
       <canvas></canvas>
-      <div class="scape__play" role="button" aria-label="Play Brook"><span>▶</span><span class="scape__pulse"></span></div>
+      <div class="scape__play" role="button" tabindex="0" aria-label="Play Brook"><span>▶</span><span class="scape__pulse"></span></div>
       <div class="scape__label">
         <div>
           <h3>Brook</h3>
@@ -131,30 +134,31 @@
 <div class="mixer" id="mixer">
   <div class="mixer__title">MIXER</div>
   <div class="mixer__lane" data-key="dawn">
-    <span class="mixer__name">Dawn</span>
-    <input type="range" class="mixer__slider" min="0" max="100" value="60" />
+    <span class="mixer__name" id="mixer-label-dawn">Dawn</span>
+    <input type="range" class="mixer__slider" min="0" max="100" value="60" aria-labelledby="mixer-label-dawn" />
   </div>
   <div class="mixer__lane" data-key="fireplace">
-    <span class="mixer__name">Hearth</span>
-    <input type="range" class="mixer__slider" min="0" max="100" value="60" />
+    <span class="mixer__name" id="mixer-label-fireplace">Hearth</span>
+    <input type="range" class="mixer__slider" min="0" max="100" value="60" aria-labelledby="mixer-label-fireplace" />
   </div>
   <div class="mixer__lane" data-key="ocean">
-    <span class="mixer__name">Tideline</span>
-    <input type="range" class="mixer__slider" min="0" max="100" value="60" />
+    <span class="mixer__name" id="mixer-label-ocean">Tideline</span>
+    <input type="range" class="mixer__slider" min="0" max="100" value="60" aria-labelledby="mixer-label-ocean" />
   </div>
   <div class="mixer__lane" data-key="forest">
-    <span class="mixer__name">Nightwood</span>
-    <input type="range" class="mixer__slider" min="0" max="100" value="60" />
+    <span class="mixer__name" id="mixer-label-forest">Nightwood</span>
+    <input type="range" class="mixer__slider" min="0" max="100" value="60" aria-labelledby="mixer-label-forest" />
   </div>
   <div class="mixer__lane" data-key="rain">
-    <span class="mixer__name">Mist</span>
-    <input type="range" class="mixer__slider" min="0" max="100" value="60" />
+    <span class="mixer__name" id="mixer-label-rain">Mist</span>
+    <input type="range" class="mixer__slider" min="0" max="100" value="60" aria-labelledby="mixer-label-rain" />
   </div>
   <div class="mixer__lane" data-key="stream">
-    <span class="mixer__name">Brook</span>
-    <input type="range" class="mixer__slider" min="0" max="100" value="60" />
+    <span class="mixer__name" id="mixer-label-stream">Brook</span>
+    <input type="range" class="mixer__slider" min="0" max="100" value="60" aria-labelledby="mixer-label-stream" />
   </div>
 </div>
+</main>
 
 <div class="bottom-line">
   <span>HEADPHONES MAKE THIS BETTER</span>

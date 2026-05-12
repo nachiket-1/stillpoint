@@ -70,6 +70,12 @@ cards.forEach((card) => {
   const cardName = (card.querySelector('h3') || {}).textContent || key;
   const icon     = card.querySelector('.scape__play span:first-child');
 
+  if (playBtn) {
+    playBtn.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); card.click(); }
+    });
+  }
+
   card.addEventListener('click', async () => {
     // Fire-and-forget resume — context will be running by the time the
     // buffer await (a microtask) resolves.
