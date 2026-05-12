@@ -342,9 +342,12 @@ body[data-page="about"] .bottom-line {
     margin: 52px 24px 44px;
   }
 }
-/* Hide home bottom-line on mobile — too long, overlaps CTAs */
+/* Hide footer on single-screen immersive pages — fixed positioning leaves
+   awkward dead space between centered content and footer on mobile */
 @media (max-width: 720px) {
-  body[data-page="home"] .bottom-line { display: none; }
+  body[data-page="home"] .bottom-line,
+  body[data-page="focus"] .bottom-line,
+  body[data-page="breathe"] .bottom-line { display: none; }
 }
 .bottom-line span { pointer-events: auto; }
 .bottom-line .credit { opacity: 0.6; transition: opacity 0.3s; }
