@@ -1,4 +1,6 @@
 // Stillpoint — multi-track ambient audio mixer.
+// Volume is controlled via Web Audio GainNode, not audio.volume,
+// because iOS Safari makes audio.volume read-only (hardware-only).
 import * as store from './store.js';
 
 const cards  = document.querySelectorAll('.scape');
@@ -8,23 +10,39 @@ const lanes  = mixer ? mixer.querySelectorAll('.mixer__lane') : [];
 const tracks = {};
 let unlocked    = false;
 let activeCount = 0;
+let audioCtx    = null;
+
+function getCtx() {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
 
 function ensureTrack(key, src, initialVol) {
   if (tracks[key]) return tracks[key];
-  const audio  = new Audio(src);
-  audio.loop   = true;
+  const audio = new Audio(src);
+  audio.loop    = true;
   audio.preload = 'auto';
-  audio.volume  = initialVol;
-  tracks[key] = { audio, playing: false, vol: initialVol };
+
+  const ctx  = getCtx();
+  const source = ctx.createMediaElementSource(audio);
+  const gain   = ctx.createGain();
+  gain.gain.value = initialVol;
+  source.connect(gain);
+  gain.connect(ctx.destination);
+
+  tracks[key] = { audio, gain, playing: false, vol: initialVol };
   return tracks[key];
 }
 
 function fadeTo(track, target, dur = 600) {
-  const start = track.audio.volume;
+  const start = track.gain.gain.value;
   const t0 = performance.now();
   function step() {
     const p = Math.min(1, (performance.now() - t0) / dur);
-    track.audio.volume = start + (target - start) * p;
+    track.gain.gain.value = start + (target - start) * p;
     if (p < 1) requestAnimationFrame(step);
   }
   step();
@@ -44,13 +62,11 @@ function showToast(msg) {
 }
 
 cards.forEach((card) => {
-  const key    = card.dataset.key;
-  const src    = card.dataset.audio;
-  const lane   = mixer && mixer.querySelector(`.mixer__lane[data-key="${key}"]`);
-  const slider = lane && lane.querySelector('.mixer__slider');
+  const key     = card.dataset.key;
+  const src     = card.dataset.audio;
+  const lane    = mixer && mixer.querySelector(`.mixer__lane[data-key="${key}"]`);
+  const slider  = lane && lane.querySelector('.mixer__slider');
   const playBtn = card.querySelector('.scape__play');
-
-  // Derive display name from the card's h3 for aria-label
   const cardName = (card.querySelector('h3') || {}).textContent || key;
 
   card.addEventListener('click', () => {
@@ -91,18 +107,18 @@ cards.forEach((card) => {
   });
 });
 
-// Direct touch→value mapping for mobile (bypasses iOS native range-input quirks).
-// touchstart is passive (no jank); touchmove calls preventDefault to block
-// page scroll while the user drags horizontally.
+// Direct touch-to-value handler — both events non-passive so we can
+// preventDefault, which stops iOS from running its own conflicting drag.
 function patchSliderTouch(slider, onChange) {
   const toVal = (clientX) => {
     const r = slider.getBoundingClientRect();
     return Math.round(Math.max(0, Math.min(100, (clientX - r.left) / r.width * 100)));
   };
   slider.addEventListener('touchstart', (e) => {
+    e.preventDefault();
     slider.value = toVal(e.touches[0].clientX);
     onChange();
-  }, { passive: true });
+  }, { passive: false });
   slider.addEventListener('touchmove', (e) => {
     e.preventDefault();
     slider.value = toVal(e.touches[0].clientX);
@@ -110,13 +126,11 @@ function patchSliderTouch(slider, onChange) {
   }, { passive: false });
 }
 
-// Sliders: update volume + visual fill, restore from + persist to localStorage
 lanes.forEach((lane) => {
   const key    = lane.dataset.key;
   const slider = lane.querySelector('.mixer__slider');
   if (!slider) return;
 
-  // Restore saved volume (else keep default in HTML)
   const saved = store.get(`mixer.${key}`);
   if (saved != null) slider.value = saved;
 
@@ -130,20 +144,20 @@ lanes.forEach((lane) => {
     const t = tracks[key];
     if (t) {
       t.vol = slider.value / 100;
-      t.audio.volume = t.vol;
+      t.gain.gain.value = t.vol;
     }
     store.set(`mixer.${key}`, Number(slider.value));
   };
   slider.addEventListener('input', onSlide);
-  slider.addEventListener('change', onSlide); // iOS Safari fires change, not input
-  patchSliderTouch(slider, onSlide);          // direct touch handler for mobile
+  slider.addEventListener('change', onSlide);
+  patchSliderTouch(slider, onSlide);
 });
 
-// Pause everything when tab is hidden
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) {
     Object.values(tracks).forEach((t) => { if (t.playing) t.audio.pause(); });
   } else {
+    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
     Object.values(tracks).forEach((t) => { if (t.playing) t.audio.play().catch(() => {}); });
   }
 });
