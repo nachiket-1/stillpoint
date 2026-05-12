@@ -36,8 +36,10 @@
     <a href="index.html" class="is-active">Home</a>
     <a href="soundscapes.html">Soundscapes</a>
     <a href="focus.html">Focus</a>
+    <a href="breathe.html">Breathe</a>
     <a href="about.html">About</a>
   </div>
+  <button class="nav__theme" id="navTheme" aria-label="Toggle theme">☾</button>
   <button class="nav__menu" id="navMenu" aria-label="Menu">≡</button>
 </nav>
 
@@ -52,6 +54,11 @@
       <a class="btn btn--primary" href="soundscapes.html">Enter the soundscapes <span class="arrow">→</span></a>
       <a class="btn btn--ghost" href="focus.html">Try the focus timer</a>
     </div>
+    <aside class="daily reveal" id="daily" aria-label="Today's wisdom">
+      <p class="daily__label">Today</p>
+      <p class="daily__text"></p>
+      <p class="daily__author"></p>
+    </aside>
   </div>
 </main>
 
@@ -62,6 +69,8 @@
 </div>
 
 <script type="module" src="js/scene-hero.js"></script>
+<script type="module" src="js/daily.js"></script>
+<script type="module" src="js/theme.js"></script>
 <script type="module" src="js/page.js"></script>
 </body>
 </html>

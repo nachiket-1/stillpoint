@@ -811,3 +811,156 @@ body[data-page="about"] .bottom-line {
     scroll-behavior: auto !important;
   }
 }
+
+/* ─── Daily wisdom card (home) */
+.daily {
+  margin-top: 36px;
+  padding-top: 24px;
+  max-width: 540px;
+  border-top: 1px solid var(--hairline);
+  opacity: 0;
+  transition: opacity 0.9s ease;
+}
+.daily.is-loaded { opacity: 1; }
+.daily__label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 10px;
+}
+.daily__text {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(17px, 2.1vw, 22px);
+  line-height: 1.55;
+  color: var(--ink);
+  letter-spacing: 0.005em;
+}
+.daily__author {
+  margin-top: 12px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+/* ─── Dark theme — warmth preserved, lightness inverted */
+[data-theme="dark"] {
+  --cream: #1a1812;
+  --cream-2: #13110c;
+  --sage: #8a9a73;
+  --sage-deep: #b1c194;
+  --ochre: #d8a958;
+  --terracotta: #c97f5a;
+  --ink: #f0e8d8;
+  --ink-soft: #b8b0a0;
+  --hairline: rgba(246, 239, 226, 0.12);
+  --hairline-strong: rgba(246, 239, 226, 0.28);
+}
+[data-theme="dark"] body { color-scheme: dark; }
+
+/* ─── Theme toggle button in nav */
+.nav__theme {
+  background: transparent;
+  border: 1px solid var(--hairline-strong);
+  border-radius: 999px;
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  color: var(--ink);
+  cursor: pointer;
+  margin-left: 16px;
+  transition: background 0.25s, border-color 0.25s, transform 0.25s;
+}
+.nav__theme:hover { background: var(--hairline); }
+.nav__theme:active { transform: scale(0.92); }
+
+/* ─── Breathe page */
+.breathe {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 96px 24px 80px;
+}
+.breathe__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.breathe__panel {
+  position: relative;
+  text-align: center;
+  z-index: 2;
+  padding: 24px;
+  max-width: 480px;
+}
+.breathe__eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 20px;
+}
+.breathe__phase {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: clamp(28px, 5vw, 44px);
+  color: var(--ink);
+  line-height: 1;
+  text-transform: lowercase;
+  letter-spacing: 0.01em;
+}
+.breathe__count {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  letter-spacing: 0.2em;
+  color: var(--ink-soft);
+  margin-top: 8px;
+  margin-bottom: 24px;
+  min-height: 18px;
+}
+.breathe__patterns {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  justify-content: center; margin-bottom: 22px;
+}
+.breathe__chip {
+  background: transparent;
+  border: 1px solid var(--hairline-strong);
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: background 0.25s, color 0.25s, border-color 0.25s;
+}
+.breathe__chip.is-active {
+  background: var(--ink);
+  color: var(--cream);
+  border-color: var(--ink);
+}
+.breathe__controls {
+  display: flex; justify-content: center;
+  margin-top: 6px;
+}
+.breathe__hint {
+  margin-top: 22px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--ink-soft);
+  font-style: italic;
+}

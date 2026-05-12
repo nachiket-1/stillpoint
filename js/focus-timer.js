@@ -1,4 +1,5 @@
 // Stillpoint — minimalist focus timer
+import * as store from './store.js';
 
 const DURATIONS = { focus: 25 * 60, short: 5 * 60, long: 15 * 60 };
 const PHASES   = { focus: 'focus', short: 'short break', long: 'long break' };
@@ -25,7 +26,24 @@ let running      = false;
 let started      = false; // true once timer has been started since last reset
 let last         = 0;
 let raf;
-let sessionCount = 0;
+
+// Persisted session tracking (resets each calendar day; total accumulates forever)
+const today = store.todayKey();
+const dayState = store.get('focus.day', { date: today, count: 0 });
+if (dayState.date !== today) { dayState.date = today; dayState.count = 0; }
+let sessionCount = dayState.count;
+let totalSessions = store.get('focus.total', 0);
+
+function renderSessions() {
+  if (!sessionsEl) return;
+  if (sessionCount === 0) {
+    sessionsEl.textContent = totalSessions > 0 ? `${totalSessions} sessions all-time` : '';
+  } else if (sessionCount === 1) {
+    sessionsEl.textContent = `1 session today · ${totalSessions} all-time`;
+  } else {
+    sessionsEl.textContent = `${sessionCount} sessions today · ${totalSessions} all-time`;
+  }
+}
 
 const audio = new Audio();
 audio.loop    = true;
@@ -67,11 +85,10 @@ function tick(now) {
     started = false;
     if (mode === 'focus') {
       sessionCount++;
-      if (sessionsEl) {
-        sessionsEl.textContent = sessionCount === 1
-          ? '1 session complete'
-          : `${sessionCount} sessions today`;
-      }
+      totalSessions++;
+      store.set('focus.day',   { date: store.todayKey(), count: sessionCount });
+      store.set('focus.total', totalSessions);
+      renderSessions();
     }
     bell();
     remaining = DURATIONS[mode];
@@ -176,3 +193,4 @@ window.addEventListener('keydown', (e) => {
 });
 
 render();
+renderSessions();

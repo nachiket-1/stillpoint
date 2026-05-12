@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Breathe — Stillpoint</title>
+<meta name="description" content="A guided breathing room. One minute, three minutes, or as long as you stay. Pick a rhythm, follow the circle." />
+<meta name="theme-color" content="#f6efe2" />
+<link rel="icon" href="favicon.svg" type="image/svg+xml" />
+<meta property="og:title" content="Breathe — Stillpoint" />
+<meta property="og:description" content="A guided breathing room. Pick a rhythm, follow the circle." />
+<meta property="og:image" content="https://nachiket-1.github.io/stillpoint/og-preview.png" />
+<meta property="og:url" content="https://nachiket-1.github.io/stillpoint/breathe.html" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary_large_image" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body data-page="breathe">
+
+<div class="boot" id="boot"><span class="boot__dot"></span></div>
+
+<nav class="nav" id="nav">
+  <a class="nav__brand" href="index.html">stillpoint<span>.</span></a>
+  <div class="nav__links">
+    <a href="index.html">Home</a>
+    <a href="soundscapes.html">Soundscapes</a>
+    <a href="focus.html">Focus</a>
+    <a href="breathe.html" class="is-active">Breathe</a>
+    <a href="about.html">About</a>
+  </div>
+  <button class="nav__theme" id="navTheme" aria-label="Toggle theme">☾</button>
+  <button class="nav__menu" id="navMenu" aria-label="Menu">≡</button>
+</nav>
+
+<div class="indicator">005 / <span>BREATHE</span></div>
+
+<section class="breathe">
+  <canvas class="breathe__canvas" id="breatheCanvas"></canvas>
+
+  <div class="breathe__panel">
+    <p class="breathe__eyebrow">A small room to breathe</p>
+    <div class="breathe__phase" id="breathePhase">ready</div>
+    <div class="breathe__count" id="breatheCount">—</div>
+
+    <div class="breathe__patterns">
+      <button class="breathe__chip is-active" data-pattern="coherent">Coherent · 5·5</button>
+      <button class="breathe__chip" data-pattern="box">Box · 4·4·4·4</button>
+      <button class="breathe__chip" data-pattern="478">Calm · 4·7·8</button>
+    </div>
+
+    <div class="breathe__controls">
+      <button class="btn btn--primary" id="breatheToggle">Begin <span class="arrow">→</span></button>
+    </div>
+
+    <p class="breathe__hint" id="breatheHint">Inhale gently through the nose · exhale through the mouth.</p>
+  </div>
+</section>
+
+<div class="bottom-line">
+  <span>ONE BREATH IS ENOUGH</span>
+  <span class="credit">Nachiket Talekar · 2026</span>
+</div>
+
+<script type="module" src="js/breathe.js"></script>
+<script type="module" src="js/theme.js"></script>
+<script type="module" src="js/page.js"></script>
+</body>
+</html>

@@ -1,4 +1,5 @@
 // Stillpoint — multi-track ambient audio mixer.
+import * as store from './store.js';
 
 const cards  = document.querySelectorAll('.scape');
 const mixer  = document.getElementById('mixer');
@@ -90,13 +91,16 @@ cards.forEach((card) => {
   });
 });
 
-// Sliders: update volume + visual fill
+// Sliders: update volume + visual fill, restore from + persist to localStorage
 lanes.forEach((lane) => {
   const key    = lane.dataset.key;
   const slider = lane.querySelector('.mixer__slider');
   if (!slider) return;
 
-  // Set initial fill
+  // Restore saved volume (else keep default in HTML)
+  const saved = store.get(`mixer.${key}`);
+  if (saved != null) slider.value = saved;
+
   const updateFill = () => {
     slider.style.setProperty('--fill', slider.value + '%');
   };
@@ -109,6 +113,7 @@ lanes.forEach((lane) => {
       t.vol = slider.value / 100;
       t.audio.volume = t.vol;
     }
+    store.set(`mixer.${key}`, Number(slider.value));
   };
   slider.addEventListener('input', onSlide);
   slider.addEventListener('change', onSlide); // iOS Safari fires change, not input
