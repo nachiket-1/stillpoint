@@ -17,7 +17,7 @@ function apply(pref) {
   return t;
 }
 
-let pref = store.get(KEY, 'auto');
+let pref = store.get(KEY, 'light');
 apply(pref);
 
 // Re-evaluate auto theme periodically so dusk → dark transition kicks in
