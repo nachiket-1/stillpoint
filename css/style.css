@@ -347,15 +347,12 @@ body[data-page="about"] .bottom-line {
   body[data-page="home"] .bottom-line { display: none; }
 }
 
-/* Breathe: footer anchored to true bottom of viewport on mobile */
-@media (max-width: 720px) {
-  body[data-page="breathe"] .bottom-line {
+/* Breathe + Focus: footer anchored to true bottom of viewport on mobile */
+@media (max-width: 820px) {
+  body[data-page="breathe"] .bottom-line,
+  body[data-page="focus"] .bottom-line {
     bottom: 0;
-    padding-bottom: max(20px, env(safe-area-inset-bottom, 20px));
-    padding-left: 24px;
-    padding-right: 24px;
-    left: 0;
-    right: 0;
+    padding-bottom: env(safe-area-inset-bottom, 8px);
   }
 }
 .bottom-line span { pointer-events: auto; }
@@ -811,7 +808,7 @@ body[data-page="focus"] { overflow: hidden; }
     min-height: 100svh;
     min-height: 100vh;
     padding-top: 80px;       /* clear the fixed nav */
-    padding-bottom: 96px;    /* clear the fixed footer */
+    padding-bottom: 64px;    /* clear the fixed footer (now flush to bottom) */
   }
 
   /* Keep the Three.js scene fixed so it stays as a background */
