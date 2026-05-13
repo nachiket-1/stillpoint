@@ -517,12 +517,13 @@ body[data-page="about"] .bottom-line {
 }
 
 /* SVG icon — show play, hide pause by default */
-.scape__icon { display: block; }
-.scape__icon .icon--pause { display: none; }
+.scape__icon { display: block; position: relative; }
+.scape__icon .icon--pause { opacity: 0; }
+.scape__icon .icon--play  { opacity: 1; }
 
 /* When playing: swap to pause icon */
-.scape.is-playing .scape__icon .icon--play  { display: none; }
-.scape.is-playing .scape__icon .icon--pause { display: inline; }
+.scape.is-playing .scape__icon .icon--play  { opacity: 0; }
+.scape.is-playing .scape__icon .icon--pause { opacity: 1; }
 
 .scape:hover .scape__play { transform: scale(1.10); box-shadow: 0 6px 28px rgba(0,0,0,0.30), 0 1px 0 rgba(255,255,255,0.6) inset; }
 .scape.is-playing .scape__play {
@@ -1146,18 +1147,19 @@ body[data-page="focus"] { overflow: hidden; }
               0 0 0 1px rgba(255,255,255,0.07) inset,
               0 1px 0 rgba(255,255,255,0.10) inset;
 }
-/* Play button: keep light bg in dark mode so it stays visible against the dark scene */
+/* Dark mode play button: dark pill with a bright border ring — visible on any scene */
 [data-theme="dark"] .scape__play {
-  background: rgba(255, 255, 255, 0.90);
-  color: #1c1d18; /* force dark icon regardless of --ink value */
-  box-shadow: 0 4px 24px rgba(0,0,0,0.56),
-              0 0 0 1.5px rgba(255,255,255,0.28),
-              0 1px 0 rgba(255,255,255,0.7) inset;
+  background: rgba(14, 12, 8, 0.78);
+  color: #f2eadc;
+  border: 2px solid rgba(242, 234, 220, 0.72);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.70);
 }
 [data-theme="dark"] .scape:hover .scape__play {
-  box-shadow: 0 6px 28px rgba(0,0,0,0.60),
-              0 0 0 2px rgba(255,255,255,0.40),
-              0 1px 0 rgba(255,255,255,0.7) inset;
+  border-color: rgba(242, 234, 220, 1);
+  box-shadow: 0 6px 28px rgba(0,0,0,0.80), 0 0 12px rgba(242,234,220,0.15);
+}
+[data-theme="dark"] .scape.is-playing .scape__play {
+  border-color: transparent;
 }
 @media (max-width: 820px) {
   [data-theme="dark"] .nav {
