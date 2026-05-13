@@ -711,11 +711,11 @@ body[data-page="focus"] { overflow: hidden; }
   backdrop-filter: blur(36px) saturate(150%);
   -webkit-backdrop-filter: blur(36px) saturate(150%);
   border: 1px solid rgba(255,255,255,0.75);
-  border-bottom: none;
-  border-radius: 28px 28px 0 0;
-  margin: 0 32px;
+  border-radius: 28px;
+  margin: 0 32px 28px;
   padding: 28px 36px 32px;
-  box-shadow: 0 -20px 60px -12px rgba(28,29,24,0.14),
+  box-shadow: 0 20px 60px -12px rgba(28,29,24,0.22),
+              0 -12px 40px -8px rgba(28,29,24,0.10),
               0 0 0 1px rgba(255,255,255,0.5) inset,
               0 1px 0 rgba(255,255,255,0.9) inset;
 }
@@ -1132,7 +1132,8 @@ body[data-page="focus"] { overflow: hidden; }
 [data-theme="dark"] .focus__drawer {
   background: rgba(18, 15, 10, 0.96);
   border-color: rgba(246, 239, 226, 0.10);
-  box-shadow: 0 -20px 60px -12px rgba(0,0,0,0.72),
+  box-shadow: 0 20px 60px -12px rgba(0,0,0,0.72),
+              0 -12px 40px -8px rgba(0,0,0,0.40),
               0 0 0 1px rgba(246, 239, 226, 0.08) inset,
               0 1px 0 rgba(246, 239, 226, 0.12) inset,
               0 0 80px -20px rgba(212, 170, 94, 0.18);
