@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://thestillpoint.com/sitemap.xml
+Sitemap: https://thestillpoint.in/sitemap.xml
