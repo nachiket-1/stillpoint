@@ -68,7 +68,6 @@ cards.forEach((card) => {
   const slider   = lane && lane.querySelector('.mixer__slider');
   const playBtn  = card.querySelector('.scape__play');
   const cardName = (card.querySelector('h3') || {}).textContent || key;
-  const icon     = card.querySelector('.scape__play span:first-child');
 
   if (playBtn) {
     playBtn.addEventListener('keydown', (e) => {
@@ -89,7 +88,6 @@ cards.forEach((card) => {
       card.classList.add('is-playing');
       if (lane)    lane.classList.add('is-active');
       if (playBtn) playBtn.setAttribute('aria-label', `Stop ${cardName}`);
-      if (icon)    icon.textContent = '❚❚';
       activeCount++;
       if (activeCount === 1 && mixer) mixer.classList.add('is-active');
 
@@ -106,7 +104,6 @@ cards.forEach((card) => {
         card.classList.remove('is-playing');
         if (lane)    lane.classList.remove('is-active');
         if (playBtn) playBtn.setAttribute('aria-label', `Play ${cardName}`);
-        if (icon)    icon.textContent = '▶';
         activeCount = Math.max(0, activeCount - 1);
         if (activeCount === 0 && mixer) mixer.classList.remove('is-active');
         return;
@@ -127,7 +124,6 @@ cards.forEach((card) => {
       card.classList.remove('is-playing');
       if (lane)    lane.classList.remove('is-active');
       if (playBtn) playBtn.setAttribute('aria-label', `Play ${cardName}`);
-      if (icon)    icon.textContent = '▶';
       activeCount = Math.max(0, activeCount - 1);
       if (activeCount === 0 && mixer) mixer.classList.remove('is-active');
 

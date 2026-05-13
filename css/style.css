@@ -347,9 +347,8 @@ body[data-page="about"] .bottom-line {
   body[data-page="home"] .bottom-line { display: none; }
 }
 
-/* Focus + breathe: footer anchored to true bottom of viewport */
+/* Breathe: footer anchored to true bottom of viewport on mobile */
 @media (max-width: 720px) {
-  body[data-page="focus"] .bottom-line,
   body[data-page="breathe"] .bottom-line {
     bottom: 0;
     padding-bottom: max(20px, env(safe-area-inset-bottom, 20px));
@@ -514,12 +513,20 @@ body[data-page="about"] .bottom-line {
   -webkit-backdrop-filter: blur(8px);
   color: var(--ink);
   display: grid; place-items: center;
-  font-size: 11px;
   z-index: 3;
   transition: background 0.4s, transform 0.4s, box-shadow 0.4s;
   pointer-events: none;
   box-shadow: 0 4px 20px rgba(0,0,0,0.24), 0 1px 0 rgba(255,255,255,0.6) inset;
 }
+
+/* SVG icon — show play, hide pause by default */
+.scape__icon { display: block; }
+.scape__icon .icon--pause { display: none; }
+
+/* When playing: swap to pause icon */
+.scape.is-playing .scape__icon .icon--play  { display: none; }
+.scape.is-playing .scape__icon .icon--pause { display: inline; }
+
 .scape:hover .scape__play { transform: scale(1.10); box-shadow: 0 6px 28px rgba(0,0,0,0.30), 0 1px 0 rgba(255,255,255,0.6) inset; }
 .scape.is-playing .scape__play {
   background: var(--ochre);
@@ -667,31 +674,54 @@ body[data-page="about"] .bottom-line {
 }
 
 /* ─── Focus page ─── */
+body[data-page="focus"] { overflow: hidden; }
+
 .focus {
-  position: relative;
-  min-height: 100vh;
-  min-height: 100svh;
-  display: grid;
-  place-items: center;
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  padding-top: 80px;   /* desktop nav height */
+  padding-bottom: 56px; /* desktop footer clearance */
 }
 .focus .scene-stage {
   position: absolute; inset: 0;
 }
-.focus__panel {
+
+/* Timer — always visible, floats over the scene */
+.focus__timer-zone {
   position: relative; z-index: 5;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   text-align: center;
-  padding: 48px 40px;
-  background: rgba(248, 243, 236, 0.74);
+  padding: 24px 32px 16px;
+  min-height: 0;
+  background: radial-gradient(ellipse 80% 70% at 50% 55%, rgba(246,239,226,0.25) 0%, transparent 75%);
+}
+
+/* Controls drawer — glass panel anchored to bottom of the layout */
+.focus__drawer {
+  position: relative; z-index: 5;
+  flex: 0 0 auto;
+  max-height: 52vh;
+  overflow-y: auto;
+  text-align: center;
+  background: rgba(248, 243, 236, 0.90);
   backdrop-filter: blur(36px) saturate(150%);
   -webkit-backdrop-filter: blur(36px) saturate(150%);
   border: 1px solid rgba(255,255,255,0.75);
-  border-radius: 36px;
-  box-shadow: 0 40px 80px -24px rgba(28,29,24,0.26),
+  border-bottom: none;
+  border-radius: 28px 28px 0 0;
+  margin: 0 32px;
+  padding: 28px 36px 32px;
+  box-shadow: 0 -20px 60px -12px rgba(28,29,24,0.14),
               0 0 0 1px rgba(255,255,255,0.5) inset,
               0 1px 0 rgba(255,255,255,0.9) inset;
-  max-width: 420px;
-  width: calc(100% - 44px);
 }
+
 .focus__eyebrow {
   font-size: 11px; letter-spacing: 0.32em;
   text-transform: uppercase; color: var(--ink-soft);
@@ -723,7 +753,6 @@ body[data-page="about"] .bottom-line {
   min-height: 14px;
 }
 .focus__controls {
-  margin-top: 26px;
   display: flex; justify-content: center; gap: 8px;
   flex-wrap: wrap;
 }
@@ -746,8 +775,8 @@ body[data-page="about"] .bottom-line {
   background: var(--ink); color: var(--cream); border-color: var(--ink);
 }
 .focus__sound {
-  margin-top: 26px;
-  padding-top: 22px;
+  margin-top: 20px;
+  padding-top: 20px;
   border-top: 1px solid var(--hairline);
   display: flex; justify-content: center; gap: 4px;
   flex-wrap: wrap;
@@ -773,21 +802,50 @@ body[data-page="about"] .bottom-line {
   border-color: rgba(195,152,69,0.28);
 }
 
-@media (max-width: 720px) {
-  .focus__panel {
-    padding: 36px 28px 32px;
-    border-radius: 28px;
-    width: calc(100% - 48px);
-    max-height: calc(100svh - 120px);
-    max-height: calc(100vh - 120px);
-    overflow-y: auto;
+@media (max-width: 820px) {
+  /* Mobile: normal scrollable layout — no viewport lock */
+  body[data-page="focus"] { overflow-y: auto; }
+
+  .focus {
+    position: relative;      /* out of fixed — participates in scroll */
+    min-height: 100svh;
+    min-height: 100vh;
+    padding-top: 80px;       /* clear the fixed nav */
+    padding-bottom: 96px;    /* clear the fixed footer */
   }
-  .focus__time { font-size: clamp(64px, 17vw, 100px); }
-  .focus__phase { font-size: 19px; }
-  .focus__eyebrow { margin-bottom: 16px; }
-  .focus__controls { margin-top: 26px; }
-  .focus__sound { margin-top: 24px; padding-top: 20px; }
-  .focus__sound button { font-size: 10px; padding: 8px 13px; }
+
+  /* Keep the Three.js scene fixed so it stays as a background */
+  .focus .scene-stage {
+    position: fixed;
+    inset: 0;
+    height: 100vh;
+    height: 100svh;
+  }
+
+  /* Timer zone: natural height, no flex-grow, compact padding */
+  .focus__timer-zone {
+    flex: 0 0 auto;
+    justify-content: flex-start;
+    padding: 20px 24px 16px;
+    min-height: auto;
+  }
+
+  /* Drawer: full card (not bottom-anchored), no height cap */
+  .focus__drawer {
+    flex: 0 0 auto;
+    max-height: none;
+    overflow-y: visible;
+    margin: 0 16px;
+    padding: 24px 20px 32px;
+    border-radius: 24px;              /* full corners — it's a card now */
+    border: 1px solid rgba(255,255,255,0.75); /* restore all four sides */
+  }
+
+  .focus__time { font-size: clamp(58px, 15vw, 88px); }
+  .focus__phase { font-size: 18px; }
+  .focus__eyebrow { margin-bottom: 10px; }
+  .focus__sound { margin-top: 14px; padding-top: 14px; }
+  .focus__sound button { padding: 8px 12px; }
 }
 
 /* ─── About page ─── */
@@ -1073,13 +1131,16 @@ body[data-page="about"] .bottom-line {
     rgba(26, 24, 18, 0.55) 72%,
     rgba(26, 24, 18, 0.78) 100%);
 }
-[data-theme="dark"] .focus__panel {
-  background: rgba(18, 15, 10, 0.94);
+[data-theme="dark"] .focus__drawer {
+  background: rgba(18, 15, 10, 0.96);
   border-color: rgba(246, 239, 226, 0.10);
-  box-shadow: 0 40px 80px -24px rgba(0,0,0,0.72),
+  box-shadow: 0 -20px 60px -12px rgba(0,0,0,0.72),
               0 0 0 1px rgba(246, 239, 226, 0.08) inset,
               0 1px 0 rgba(246, 239, 226, 0.12) inset,
               0 0 80px -20px rgba(212, 170, 94, 0.18);
+}
+[data-theme="dark"] .focus__timer-zone {
+  background: radial-gradient(ellipse 80% 70% at 50% 55%, rgba(18,15,10,0.32) 0%, transparent 75%);
 }
 [data-theme="dark"] .mixer {
   background: rgba(20, 17, 12, 0.97);
@@ -1087,6 +1148,19 @@ body[data-page="about"] .bottom-line {
   box-shadow: 0 24px 60px -12px rgba(0,0,0,0.62),
               0 0 0 1px rgba(255,255,255,0.07) inset,
               0 1px 0 rgba(255,255,255,0.10) inset;
+}
+/* Play button: keep light bg in dark mode so it stays visible against the dark scene */
+[data-theme="dark"] .scape__play {
+  background: rgba(255, 255, 255, 0.90);
+  color: #1c1d18; /* force dark icon regardless of --ink value */
+  box-shadow: 0 4px 24px rgba(0,0,0,0.56),
+              0 0 0 1.5px rgba(255,255,255,0.28),
+              0 1px 0 rgba(255,255,255,0.7) inset;
+}
+[data-theme="dark"] .scape:hover .scape__play {
+  box-shadow: 0 6px 28px rgba(0,0,0,0.60),
+              0 0 0 2px rgba(255,255,255,0.40),
+              0 1px 0 rgba(255,255,255,0.7) inset;
 }
 @media (max-width: 820px) {
   [data-theme="dark"] .nav {

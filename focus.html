@@ -52,23 +52,25 @@
 <main class="focus">
   <div class="scene-stage" id="focusStage"></div>
 
-  <div class="focus__panel reveal">
+  <!-- Timer — always visible, floats over the scene -->
+  <div class="focus__timer-zone reveal">
     <p class="focus__eyebrow">A small ritual</p>
     <div class="focus__time" id="time">25:00</div>
     <div class="focus__phase" id="phase">focus</div>
     <div class="focus__sessions" id="sessions"></div>
+  </div>
 
+  <!-- Controls — glass drawer at bottom, scrollable if needed -->
+  <div class="focus__drawer reveal">
     <div class="focus__controls">
       <button class="focus__chip is-active" data-mode="focus">Focus · 25</button>
       <button class="focus__chip" data-mode="short">Short · 5</button>
       <button class="focus__chip" data-mode="long">Long · 15</button>
     </div>
-
     <div class="focus__controls" style="margin-top:14px;">
       <button class="btn btn--primary" id="toggle">Start <span class="arrow">→</span></button>
       <button class="btn btn--ghost" id="reset">Reset</button>
     </div>
-
     <div class="focus__sound">
       <button data-sound="none" class="is-active">silence</button>
       <button data-sound="dawn">dawn</button>
