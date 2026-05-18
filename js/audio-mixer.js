@@ -16,16 +16,20 @@ cards.forEach((card) => {
   gains[card.dataset.key] = g;
 });
 
-// Fetch + decode every track immediately on page load.
-// decodeAudioData is a CPU operation and works even on a suspended context,
-// so buffers are ready long before the first tap.
+// Lazy-decode: fetch + decode each track only on first tap.
+// Pre-decoding all tracks simultaneously hits iOS Safari's Web Audio memory
+// limit and causes random tracks to silently fail.
 const audioBuffers = {};
-cards.forEach((card) => {
-  audioBuffers[card.dataset.key] = fetch(card.dataset.audio)
-    .then((r) => r.arrayBuffer())
-    .then((data) => ctx.decodeAudioData(data))
-    .catch(() => null);
-});
+
+function getBuffer(key, url) {
+  if (!audioBuffers[key]) {
+    audioBuffers[key] = fetch(url)
+      .then((r) => r.arrayBuffer())
+      .then((data) => ctx.decodeAudioData(data))
+      .catch(() => null);
+  }
+  return audioBuffers[key];
+}
 
 const state = {};
 cards.forEach((card) => { state[card.dataset.key] = { node: null, playing: false }; });
@@ -96,8 +100,7 @@ cards.forEach((card) => {
         showToast('audio unlocked · headphones recommended');
       }
 
-      // Buffer is almost always already decoded by the time of first tap.
-      const buf = await audioBuffers[key];
+      const buf = await getBuffer(key, card.dataset.audio);
       if (!buf) {
         // Decode failed — revert visuals.
         s.playing = false;
