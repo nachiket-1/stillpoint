@@ -1158,6 +1158,38 @@ body[data-page="about"] main.about {
   .breathe__hint { margin-top: 28px; font-size: 13.5px; }
 }
 
+/* ─── Breathe page: glass nav (same fix as soundscapes/about) ─── */
+body[data-page="breathe"] .nav {
+  mix-blend-mode: normal;
+  color: var(--ink);
+  background: rgba(246, 239, 226, 0.88);
+  backdrop-filter: blur(16px) saturate(120%);
+  -webkit-backdrop-filter: blur(16px) saturate(120%);
+}
+[data-theme="dark"] body[data-page="breathe"] .nav {
+  background: rgba(26, 24, 18, 0.90);
+  color: #f2eadc;
+}
+
+/* Breathe panel: dark mode glass backing so text reads clearly */
+[data-theme="dark"] .breathe__panel {
+  background: radial-gradient(ellipse 80% 70% at 50% 50%,
+    rgba(18, 15, 10, 0.45) 0%,
+    transparent 75%);
+}
+[data-theme="dark"] .breathe__chip {
+  border-color: rgba(246, 239, 226, 0.22);
+  color: #b4ac9e;
+}
+[data-theme="dark"] .breathe__chip.is-active {
+  background: #f2eadc;
+  color: #181510;
+  border-color: #f2eadc;
+}
+[data-theme="dark"] .breathe__hint {
+  color: #7a7268;
+}
+
 /* ─── Dark mode: fix hardcoded cream values that don't adapt */
 [data-theme="dark"] .overlay::before {
   background: linear-gradient(to bottom,
