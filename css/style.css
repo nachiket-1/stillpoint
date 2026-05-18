@@ -377,10 +377,21 @@ body[data-page="about"] .bottom-line {
 }
 
 /* ─── Soundscapes grid ─── */
+/* Glass nav override — mix-blend-mode:difference breaks against Three.js canvases */
+body[data-page="soundscapes"] .nav {
+  mix-blend-mode: normal;
+  color: var(--ink);
+  background: rgba(246, 239, 226, 0.88);
+  backdrop-filter: blur(16px) saturate(120%);
+  -webkit-backdrop-filter: blur(16px) saturate(120%);
+}
+[data-theme="dark"] body[data-page="soundscapes"] .nav {
+  background: rgba(26, 24, 18, 0.90);
+  color: #f2eadc;
+}
 .scapes {
   position: relative;
-  min-height: 100vh;
-  padding: 140px 8vw 160px;
+  padding: 140px 8vw 80px;
 }
 .scapes__head {
   display: flex; justify-content: space-between; align-items: flex-end;
