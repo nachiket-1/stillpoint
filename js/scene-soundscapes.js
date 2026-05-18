@@ -499,210 +499,153 @@ function buildForest(scene, camera) {
 }
 
 // ─────────────────────────────────────────────────────────────
-// STREAM — carved channel terrain with clear water boundaries
+// STREAM — sun-dappled forest brook flowing toward the camera
 function buildStream(scene, camera) {
-  scene.fog = new THREE.Fog(0xc8deb0, 7, 16);
-
-  scene.add(new THREE.HemisphereLight(0xd8f0c0, 0x2a3818, 0.80));
-  const sun = new THREE.DirectionalLight(0xfff8d8, 1.8);
-  sun.position.set(5, 12, 6);
-  scene.add(sun);
-  const fill = new THREE.DirectionalLight(0xb0d890, 0.40);
-  fill.position.set(-4, 5, -3);
-  scene.add(fill);
-
-  // ── Single terrain mesh — stream channel carved in ──
-  // Channel runs along X (left-right). Stream occupies |z| < 1.55.
-  // Shore slope: 1.55 < |z| < 2.05. Green bank: |z| > 2.05.
-  const tGeo = new THREE.PlaneGeometry(13, 9, 110, 70);
-  tGeo.rotateX(-Math.PI / 2);
-  const tPos = tGeo.attributes.position;
-  for (let i = 0; i < tPos.count; i++) {
-    const x = tPos.getX(i), z = tPos.getZ(i);
-    const az = Math.abs(z);
-    let y;
-    if (az < 1.55) {
-      // flat stream bed with subtle pebble bumps
-      y = -0.58 + Math.sin(x * 1.8 + z * 2.2) * 0.020 + Math.cos(x * 3.4 + z * 1.1) * 0.012;
-    } else if (az < 2.05) {
-      // shore slope rising from bed to bank
-      const t = (az - 1.55) / 0.50;
-      y = -0.58 + t * 0.60 + Math.sin(x * 1.1) * 0.030;
-    } else {
-      // grassy bank — gently undulating
-      y = Math.sin(x * 0.55 + z * 0.40) * 0.14 + Math.cos(x * 1.7 + z * 0.25) * 0.07;
-    }
-    tPos.setY(i, y);
-  }
-  tGeo.computeVertexNormals();
-
-  // Colour terrain by position: pebble / sandy shore / green grass
-  const tMat = new THREE.ShaderMaterial({
-    vertexShader: `
-      varying vec3 vP;
-      void main(){ vP = position; gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.0); }`,
-    fragmentShader: `
-      varying vec3 vP;
-      float h21(vec2 p){ return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453); }
+  // sky gradient — mossy green-cream
+  const skyGeo = new THREE.SphereGeometry(50, 32, 16);
+  const skyMat = new THREE.ShaderMaterial({
+    side: THREE.BackSide,
+    vertexShader: `varying vec3 vW; void main(){ vec4 wp=modelMatrix*vec4(position,1.0); vW=wp.xyz; gl_Position=projectionMatrix*viewMatrix*wp; }`,
+    fragmentShader: `varying vec3 vW;
       void main(){
-        float az = abs(vP.z);
-        vec3 col;
-        if(az < 1.55){
-          vec2 g = floor(vec2(vP.x,vP.z)*18.0);
-          float r = h21(g);
-          col = mix(vec3(0.52,0.48,0.41), vec3(0.66,0.61,0.52), r);
-          col = mix(col, vec3(0.38,0.35,0.30), h21(g+4.7)*0.38);
-        } else if(az < 2.05){
-          vec2 g = floor(vec2(vP.x,vP.z)*22.0);
-          float r = h21(g);
-          col = mix(vec3(0.70,0.64,0.50), vec3(0.78,0.72,0.58), r);
-        } else {
-          vec2 g = floor(vec2(vP.x,vP.z)*9.0);
-          float r = h21(g);
-          col = mix(vec3(0.22,0.42,0.17), vec3(0.28,0.52,0.20), r);
-          col += vec3(0.03,0.05,0.02)*h21(g*2.9);
-        }
-        gl_FragColor = vec4(col, 1.0);
+        float h = normalize(vW).y;
+        vec3 top = vec3(0.92, 0.94, 0.78);
+        vec3 mid = vec3(0.78, 0.86, 0.62);
+        vec3 low = vec3(0.50, 0.58, 0.38);
+        vec3 c = mix(low, mid, smoothstep(-0.1, 0.4, h));
+        c = mix(c, top, smoothstep(0.3, 0.85, h));
+        gl_FragColor = vec4(c, 1.0);
       }`,
   });
-  scene.add(new THREE.Mesh(tGeo, tMat));
+  scene.add(new THREE.Mesh(skyGeo, skyMat));
 
-  // ── Water surface — sits above bed, below bank tops ──
-  const wGeo = new THREE.PlaneGeometry(13, 3.10, 100, 22);
-  wGeo.rotateX(-Math.PI / 2);
+  scene.add(new THREE.HemisphereLight(0xeaf0c8, 0x2c3a20, 0.85));
+  const sun = new THREE.DirectionalLight(0xfff4c8, 0.9);
+  sun.position.set(2, 5, -2);
+  scene.add(sun);
+
+  // Banks (two long mossy planes flanking the stream)
+  const bankMat = new THREE.MeshStandardMaterial({ color: 0x4d6033, roughness: 1, flatShading: true });
+  function bank(side) {
+    const g = new THREE.PlaneGeometry(2.2, 16, 6, 30);
+    const p = g.attributes.position;
+    for (let i = 0; i < p.count; i++) {
+      const x = p.getX(i), y = p.getY(i);
+      const h = Math.sin(y * 0.6 + x) * 0.15 + Math.cos(y * 1.4) * 0.08;
+      p.setZ(i, h + (x > 0 ? 0.4 : 0.0));
+    }
+    g.computeVertexNormals();
+    const m = new THREE.Mesh(g, bankMat);
+    m.rotation.x = -Math.PI / 2;
+    m.rotation.z = Math.PI / 2;
+    m.position.set(side * 1.1, -0.4, -3);
+    scene.add(m);
+  }
+  bank(-1); bank(1);
+
+  // Stream — animated water plane between banks
+  const waterGeo = new THREE.PlaneGeometry(1.6, 16, 12, 80);
+  waterGeo.rotateX(-Math.PI / 2);
   const waterMat = new THREE.ShaderMaterial({
     uniforms: { time: { value: 0 } },
-    transparent: true,
-    depthWrite: false,
     vertexShader: `
-      uniform float time; varying vec2 vUv; varying float vH;
+      uniform float time; varying float vF; varying vec2 vUv;
       void main(){
-        vUv = uv; vec3 p = position;
-        float w = sin(p.x*3.0 - time*4.0)*0.022
-                + sin(p.x*6.5 - time*6.2)*0.010
-                + sin(p.z*5.0 + time*2.2)*0.012;
-        p.y += w; vH = w;
+        vUv = uv;
+        vec3 p = position;
+        float ripple = sin(p.z*4.0 + time*4.5) * 0.02
+                     + sin(p.x*7.0 + time*3.0) * 0.012;
+        p.y += ripple; vF = ripple;
         gl_Position = projectionMatrix*modelViewMatrix*vec4(p,1.0);
       }`,
     fragmentShader: `
-      uniform float time; varying vec2 vUv; varying float vH;
-      float h21(vec2 p){ return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5); }
-      float noise(vec2 p){
-        vec2 i=floor(p),f=fract(p); f=f*f*(3.0-2.0*f);
-        return mix(mix(h21(i),h21(i+vec2(1,0)),f.x),
-                   mix(h21(i+vec2(0,1)),h21(i+vec2(1,1)),f.x),f.y);
-      }
+      uniform float time; varying float vF; varying vec2 vUv;
+      // simple flowing diagonal stripe pattern → looks like current
       void main(){
-        // Caustics scrolling left-to-right
-        float ca = noise(vec2(vUv.x*6.0 - time*1.4, vUv.y*5.0 + time*0.25));
-        float cb = noise(vec2(vUv.x*4.5 - time*0.85 + 2.7, vUv.y*6.5 - time*0.38));
-        float caustic = pow(ca*cb, 1.9)*2.6;
-
-        // Core water colour
-        vec3 col = vec3(0.18, 0.52, 0.64);
-
-        // Caustic shimmer
-        col += vec3(0.76,1.0,0.80)*caustic*0.28;
-
-        // Surface micro-shimmer
-        float sh = noise(vec2(vUv.x*14.0-time*3.2, vUv.y*9.0+time*0.8));
-        col += vec3(0.70,0.90,1.0)*sh*0.08;
-
-        // Wave crests
-        col += vec3(1.0,1.0,1.0)*smoothstep(0.015,0.028,vH)*0.92;
-
-        // Shore foam — strong white border at both edges
-        float foam = smoothstep(0.09,0.0,vUv.y) + smoothstep(0.91,1.0,vUv.y);
-        col = mix(col, vec3(0.94,0.98,0.96), foam*0.85);
-
-        gl_FragColor = vec4(col, 0.86);
+        float flow = sin(vUv.y * 32.0 - time * 3.5);
+        flow = smoothstep(0.6, 1.0, flow);
+        vec3 deep = vec3(0.18, 0.30, 0.32);
+        vec3 mid  = vec3(0.40, 0.55, 0.50);
+        vec3 col = mix(deep, mid, vUv.y);
+        col += vec3(0.85, 0.92, 0.78) * flow * 0.45;            // foam streaks
+        col += vec3(0.95, 0.98, 0.7) * smoothstep(0.012, 0.025, vF) * 0.6; // crests
+        gl_FragColor = vec4(col, 1.0);
       }`,
   });
-  const water = new THREE.Mesh(wGeo, waterMat);
-  water.position.set(0, -0.30, 0);
+  const water = new THREE.Mesh(waterGeo, waterMat);
+  water.position.set(0, -0.45, -3);
   scene.add(water);
 
-  // ── Rocks — clustered at the water edges ──
-  const rMats = [
-    new THREE.MeshStandardMaterial({ color: 0x7c7c6a, roughness: 0.85, flatShading: true }),
-    new THREE.MeshStandardMaterial({ color: 0x5e5e52, roughness: 1,    flatShading: true }),
-    new THREE.MeshStandardMaterial({ color: 0x6a6a58, roughness: 0.9,  flatShading: true }),
-  ];
-  for (let i = 0; i < 26; i++) {
-    const r = 0.06 + Math.random() * 0.20;
-    const rock = new THREE.Mesh(new THREE.IcosahedronGeometry(r, 0), rMats[i % 3]);
-    const atEdge = Math.random() < 0.55;
-    const z = atEdge
-      ? (Math.random() < 0.5 ? 1 : -1) * (1.3 + Math.random() * 0.6)
-      : (Math.random() - 0.5) * 2.6;
-    rock.position.set((Math.random() - 0.5) * 12, -0.36 + r * 0.22, z);
-    rock.scale.set(1.1 + Math.random() * 0.5, 0.40 + Math.random() * 0.42, 0.75 + Math.random() * 0.55);
+  // Mossy rocks scattered along banks + a few in the water
+  const rockMat = new THREE.MeshStandardMaterial({ color: 0x6a6a55, roughness: 1, flatShading: true });
+  for (let i = 0; i < 14; i++) {
+    const r = 0.10 + Math.random() * 0.18;
+    const rock = new THREE.Mesh(new THREE.IcosahedronGeometry(r, 0), rockMat);
+    const inWater = Math.random() < 0.35;
+    const x = inWater
+      ? (Math.random() - 0.5) * 1.2
+      : (Math.random() < 0.5 ? -1 : 1) * (1.0 + Math.random() * 1.0);
+    rock.position.set(x, -0.34, -1 - Math.random() * 7);
+    rock.scale.y = 0.6 + Math.random() * 0.3;
     rock.rotation.y = Math.random() * Math.PI;
     scene.add(rock);
   }
 
-  // ── Trees on both banks ──
-  for (let i = 0; i < 18; i++) {
-    const h = 1.5 + Math.random() * 1.5;
-    const side = (Math.random() < 0.5 ? 1 : -1) * (2.8 + Math.random() * 1.0);
-    const tx = (Math.random() - 0.5) * 13;
-    const trunkMat = new THREE.MeshStandardMaterial({ color: 0x2c1c0c, roughness: 1 });
-    const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.08, h, 5), trunkMat);
-    trunk.position.set(tx, h * 0.5 - 0.50, side);
-    scene.add(trunk);
-    const cColors = [0x2c4e1a, 0x3a6022, 0x486228, 0x304a18];
-    const canopy = new THREE.Mesh(
-      new THREE.IcosahedronGeometry(0.42 + Math.random() * 0.38, 1),
-      new THREE.MeshStandardMaterial({ color: cColors[i % 4], roughness: 1, flatShading: true })
+  // Distant tree silhouettes
+  for (let i = 0; i < 10; i++) {
+    const tree = new THREE.Mesh(
+      new THREE.ConeGeometry(0.4 + Math.random() * 0.2, 1.6 + Math.random() * 0.6, 6),
+      new THREE.MeshStandardMaterial({ color: 0x35462a, roughness: 1, flatShading: true })
     );
-    canopy.position.set(tx, trunk.position.y + h * 0.5 + 0.1, side);
-    scene.add(canopy);
+    tree.position.set((Math.random() - 0.5) * 12, 0.3, -7 - Math.random() * 3);
+    scene.add(tree);
   }
 
-  // ── Light motes ──
-  const mc = 65;
-  const mPos = new Float32Array(mc * 3);
-  const mPh  = new Float32Array(mc);
-  for (let i = 0; i < mc; i++) {
-    mPos[i*3]   = (Math.random()-0.5)*13;
-    mPos[i*3+1] = 0.10 + Math.random()*1.4;
-    mPos[i*3+2] = (Math.random()-0.5)*6;
-    mPh[i] = Math.random()*6.28;
+  // Light shafts as upward-drifting motes
+  const count = 80;
+  const positions = new Float32Array(count * 3);
+  const phase = new Float32Array(count);
+  for (let i = 0; i < count; i++) {
+    positions[i*3]   = (Math.random() - 0.5) * 6;
+    positions[i*3+1] = Math.random() * 2.5;
+    positions[i*3+2] = -1 - Math.random() * 6;
+    phase[i] = Math.random() * 6.28;
   }
   const mGeo = new THREE.BufferGeometry();
-  mGeo.setAttribute('position', new THREE.BufferAttribute(mPos,3));
-  mGeo.setAttribute('aPhase',   new THREE.BufferAttribute(mPh,1));
+  mGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  mGeo.setAttribute('aPhase', new THREE.BufferAttribute(phase, 1));
   const mMat = new THREE.ShaderMaterial({
-    transparent:true, depthWrite:false, blending:THREE.AdditiveBlending,
-    uniforms:{ time:{value:0} },
-    vertexShader:`
+    transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+    uniforms: { time: { value: 0 } },
+    vertexShader: `
       attribute float aPhase; uniform float time; varying float vA;
       void main(){
-        vec3 p=position;
-        p.x+=sin(time*0.33+aPhase)*0.20;
-        p.y+=sin(time*0.52+aPhase*1.3)*0.09;
-        vec4 mv=modelViewMatrix*vec4(p,1.0);
-        gl_Position=projectionMatrix*mv;
-        gl_PointSize=clamp(52.0/-mv.z,1.5,4.5);
-        vA=0.30+0.70*sin(time*0.88+aPhase);
+        vec3 p = position;
+        p.x += sin(time*0.4 + aPhase) * 0.15;
+        vec4 mv = modelViewMatrix*vec4(p,1.0);
+        gl_Position = projectionMatrix*mv;
+        gl_PointSize = clamp(60.0 / -mv.z, 1.5, 4.0);
+        vA = 0.5 + 0.5 * sin(time*1.0 + aPhase);
       }`,
-    fragmentShader:`varying float vA;
+    fragmentShader: `varying float vA;
       void main(){
-        float a=smoothstep(0.5,0.0,length(gl_PointCoord-0.5));
-        gl_FragColor=vec4(0.95,1.0,0.78,a*vA*0.50);
+        float a = smoothstep(0.5, 0.0, length(gl_PointCoord-0.5));
+        gl_FragColor = vec4(1.0, 0.96, 0.72, a*vA*0.45);
       }`,
   });
-  scene.add(new THREE.Points(mGeo, mMat));
+  const motes = new THREE.Points(mGeo, mMat);
+  scene.add(motes);
 
-  camera.position.set(0, 2.4, 2.6);
-  camera.lookAt(0, -0.45, -0.3);
+  camera.position.set(0, 0.55, 3.6);
+  camera.lookAt(0, 0.1, -3);
 
   return {
     update(t) {
       waterMat.uniforms.time.value = t;
       mMat.uniforms.time.value = t;
-      camera.position.x = Math.sin(t * 0.08) * 0.16;
-      camera.lookAt(0, -0.45, -0.3);
+      camera.position.x = Math.sin(t * 0.12) * 0.12;
+      camera.position.y = 0.55 + Math.cos(t * 0.18) * 0.03;
+      camera.lookAt(0, 0.1, -3);
     }
   };
 }
