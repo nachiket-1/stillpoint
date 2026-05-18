@@ -524,27 +524,26 @@ function buildStream(scene, camera) {
   sun.position.set(2, 5, -2);
   scene.add(sun);
 
-  // Banks (two long mossy planes flanking the stream)
+  // Banks — now north and south of the stream (stream runs east-west)
   const bankMat = new THREE.MeshStandardMaterial({ color: 0x4d6033, roughness: 1, flatShading: true });
-  function bank(side) {
-    const g = new THREE.PlaneGeometry(2.2, 16, 6, 30);
+  function bank(zPos) {
+    const g = new THREE.PlaneGeometry(22, 4, 30, 10);
     const p = g.attributes.position;
     for (let i = 0; i < p.count; i++) {
       const x = p.getX(i), y = p.getY(i);
-      const h = Math.sin(y * 0.6 + x) * 0.15 + Math.cos(y * 1.4) * 0.08;
-      p.setZ(i, h + (x > 0 ? 0.4 : 0.0));
+      p.setZ(i, Math.sin(x * 0.6 + y) * 0.14 + Math.cos(x * 1.5) * 0.08);
     }
     g.computeVertexNormals();
     const m = new THREE.Mesh(g, bankMat);
     m.rotation.x = -Math.PI / 2;
-    m.rotation.z = Math.PI / 2;
-    m.position.set(side * 1.1, -0.4, -3);
+    m.position.set(0, -0.4, zPos);
     scene.add(m);
   }
-  bank(-1); bank(1);
+  bank(-1.5);  // south bank (between camera and stream)
+  bank(-4.5);  // north bank (beyond stream)
 
-  // Stream — animated water plane between banks
-  const waterGeo = new THREE.PlaneGeometry(1.6, 16, 12, 80);
+  // Stream — east-west plane, extends past both frame edges so it never ends visibly
+  const waterGeo = new THREE.PlaneGeometry(22, 1.8, 80, 12);
   waterGeo.rotateX(-Math.PI / 2);
   const waterMat = new THREE.ShaderMaterial({
     uniforms: { time: { value: 0 } },
@@ -553,22 +552,21 @@ function buildStream(scene, camera) {
       void main(){
         vUv = uv;
         vec3 p = position;
-        float ripple = sin(p.z*4.0 + time*4.5) * 0.02
-                     + sin(p.x*7.0 + time*3.0) * 0.012;
+        float ripple = sin(p.x*4.0 - time*4.5) * 0.02
+                     + sin(p.z*7.0 + time*3.0) * 0.012;
         p.y += ripple; vF = ripple;
         gl_Position = projectionMatrix*modelViewMatrix*vec4(p,1.0);
       }`,
     fragmentShader: `
       uniform float time; varying float vF; varying vec2 vUv;
-      // simple flowing diagonal stripe pattern → looks like current
       void main(){
-        float flow = sin(vUv.y * 32.0 - time * 3.5);
+        float flow = sin(vUv.x * 32.0 - time * 3.5);
         flow = smoothstep(0.6, 1.0, flow);
         vec3 deep = vec3(0.18, 0.30, 0.32);
         vec3 mid  = vec3(0.40, 0.55, 0.50);
-        vec3 col = mix(deep, mid, vUv.y);
-        col += vec3(0.85, 0.92, 0.78) * flow * 0.45;            // foam streaks
-        col += vec3(0.95, 0.98, 0.7) * smoothstep(0.012, 0.025, vF) * 0.6; // crests
+        vec3 col = mix(deep, mid, vUv.x);
+        col += vec3(0.85, 0.92, 0.78) * flow * 0.45;
+        col += vec3(0.95, 0.98, 0.7) * smoothstep(0.012, 0.025, vF) * 0.6;
         gl_FragColor = vec4(col, 1.0);
       }`,
   });
@@ -576,28 +574,29 @@ function buildStream(scene, camera) {
   water.position.set(0, -0.45, -3);
   scene.add(water);
 
-  // Mossy rocks scattered along banks + a few in the water
+  // Rocks along the north and south edges of the stream
   const rockMat = new THREE.MeshStandardMaterial({ color: 0x6a6a55, roughness: 1, flatShading: true });
   for (let i = 0; i < 14; i++) {
     const r = 0.10 + Math.random() * 0.18;
     const rock = new THREE.Mesh(new THREE.IcosahedronGeometry(r, 0), rockMat);
     const inWater = Math.random() < 0.35;
-    const x = inWater
-      ? (Math.random() - 0.5) * 1.2
-      : (Math.random() < 0.5 ? -1 : 1) * (1.0 + Math.random() * 1.0);
-    rock.position.set(x, -0.34, -1 - Math.random() * 7);
+    const z = inWater
+      ? -3 + (Math.random() - 0.5) * 1.4
+      : -3 + (Math.random() < 0.5 ? 1 : -1) * (0.9 + Math.random() * 0.6);
+    rock.position.set((Math.random() - 0.5) * 20, -0.34, z);
     rock.scale.y = 0.6 + Math.random() * 0.3;
     rock.rotation.y = Math.random() * Math.PI;
     scene.add(rock);
   }
 
-  // Distant tree silhouettes
-  for (let i = 0; i < 10; i++) {
+  // Tree silhouettes lining both banks
+  for (let i = 0; i < 12; i++) {
     const tree = new THREE.Mesh(
       new THREE.ConeGeometry(0.4 + Math.random() * 0.2, 1.6 + Math.random() * 0.6, 6),
       new THREE.MeshStandardMaterial({ color: 0x35462a, roughness: 1, flatShading: true })
     );
-    tree.position.set((Math.random() - 0.5) * 12, 0.3, -7 - Math.random() * 3);
+    const side = Math.random() < 0.5 ? -0.8 : -5.5;
+    tree.position.set((Math.random() - 0.5) * 22, 0.3, side - Math.random() * 0.8);
     scene.add(tree);
   }
 
