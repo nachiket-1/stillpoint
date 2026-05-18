@@ -847,8 +847,15 @@ body[data-page="focus"] { overflow: hidden; }
 }
 
 /* ─── About page ─── */
-.about {
+body[data-page="about"] {
+  display: flex;
+  flex-direction: column;
   min-height: 100vh;
+}
+body[data-page="about"] main.about {
+  flex: 1;
+}
+.about {
   position: relative;
   display: grid;
   grid-template-columns: 1fr 1fr;
