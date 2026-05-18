@@ -563,9 +563,9 @@ function buildStream(scene, camera) {
       void main(){
         float flow = sin(vUv.y * 28.0 - time * 3.2);
         flow = smoothstep(0.5, 1.0, flow);
-        vec3 deep = vec3(0.14, 0.26, 0.40);
+        vec3 deep = vec3(0.10, 0.20, 0.34);
         vec3 light = vec3(0.34, 0.58, 0.62);
-        vec3 col = mix(deep, light, vUv.y);
+        vec3 col = mix(light, deep, vUv.y);
         col += vec3(0.88, 0.95, 1.00) * flow * 0.52;
         col += vec3(1.0, 1.0, 0.96) * smoothstep(0.012, 0.026, vF) * 0.72;
         gl_FragColor = vec4(col, 1.0);
