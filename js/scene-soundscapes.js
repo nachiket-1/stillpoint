@@ -553,15 +553,15 @@ function buildStream(scene, camera) {
       void main(){
         vUv = uv;
         vec3 p = position;
-        float ripple = sin(p.z*4.0 - time*4.5) * 0.022
-                     + sin(p.x*7.0 - time*3.0) * 0.012;
+        float ripple = sin(p.x*4.0 - time*4.5) * 0.022
+                     + sin(p.z*6.0 + time*1.5) * 0.010;
         p.y += ripple; vF = ripple;
         gl_Position = projectionMatrix*modelViewMatrix*vec4(p,1.0);
       }`,
     fragmentShader: `
       uniform float time; varying float vF; varying vec2 vUv;
       void main(){
-        float flow = sin(vUv.y * 28.0 - time * 3.2);
+        float flow = sin(vUv.x * 28.0 - time * 3.2);
         flow = smoothstep(0.5, 1.0, flow);
         vec3 deep = vec3(0.10, 0.20, 0.34);
         vec3 light = vec3(0.34, 0.58, 0.62);
