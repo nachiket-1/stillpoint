@@ -553,22 +553,21 @@ function buildStream(scene, camera) {
       void main(){
         vUv = uv;
         vec3 p = position;
-        float ripple = sin(p.z*4.0 + time*4.5) * 0.02
-                     + sin(p.x*7.0 + time*3.0) * 0.012;
+        float ripple = sin(p.z*4.0 - time*4.5) * 0.022
+                     + sin(p.x*7.0 - time*3.0) * 0.012;
         p.y += ripple; vF = ripple;
         gl_Position = projectionMatrix*modelViewMatrix*vec4(p,1.0);
       }`,
     fragmentShader: `
       uniform float time; varying float vF; varying vec2 vUv;
-      // simple flowing diagonal stripe pattern → looks like current
       void main(){
-        float flow = sin(vUv.y * 32.0 - time * 3.5);
-        flow = smoothstep(0.6, 1.0, flow);
-        vec3 deep = vec3(0.18, 0.30, 0.32);
-        vec3 mid  = vec3(0.40, 0.55, 0.50);
-        vec3 col = mix(deep, mid, vUv.y);
-        col += vec3(0.85, 0.92, 0.78) * flow * 0.45;            // foam streaks
-        col += vec3(0.95, 0.98, 0.7) * smoothstep(0.012, 0.025, vF) * 0.6; // crests
+        float flow = sin(vUv.y * 28.0 - time * 3.2);
+        flow = smoothstep(0.5, 1.0, flow);
+        vec3 deep = vec3(0.14, 0.26, 0.40);
+        vec3 light = vec3(0.34, 0.58, 0.62);
+        vec3 col = mix(deep, light, vUv.y);
+        col += vec3(0.88, 0.95, 1.00) * flow * 0.52;
+        col += vec3(1.0, 1.0, 0.96) * smoothstep(0.012, 0.026, vF) * 0.72;
         gl_FragColor = vec4(col, 1.0);
       }`,
   });
