@@ -539,10 +539,12 @@ function buildStream(scene, camera) {
     m.position.set(0, -0.4, zPos);
     scene.add(m);
   }
-  bank(0.5);   // south bank — ends at z=-1.5, water starts at z=-1.5
-  bank(-6.5);  // north bank — starts at z=-4.5, water ends at z=-4.5
+  // Stream center at z=-2. Water spans z=-0.5 to z=-3.5 (3 units).
+  // Banks butt right up to the water edges with no gap.
+  bank(1.0);   // south bank centre z=+1 → spans z=-0.5 to z=+2.5
+  bank(-5.0);  // north bank centre z=-5 → spans z=-3.5 to z=-6.5
 
-  // Stream — east-west, 3 units wide, no bank overlap
+  // Stream — east-west, 3 units wide, centred at z=-2
   const waterGeo = new THREE.PlaneGeometry(22, 3.0, 80, 20);
   waterGeo.rotateX(-Math.PI / 2);
   const waterMat = new THREE.ShaderMaterial({
@@ -571,7 +573,7 @@ function buildStream(scene, camera) {
       }`,
   });
   const water = new THREE.Mesh(waterGeo, waterMat);
-  water.position.set(0, -0.45, -3);
+  water.position.set(0, -0.45, -2);
   scene.add(water);
 
   // Rocks along the north and south edges of the stream
@@ -581,8 +583,8 @@ function buildStream(scene, camera) {
     const rock = new THREE.Mesh(new THREE.IcosahedronGeometry(r, 0), rockMat);
     const inWater = Math.random() < 0.35;
     const z = inWater
-      ? -3 + (Math.random() - 0.5) * 1.4
-      : -3 + (Math.random() < 0.5 ? 1 : -1) * (0.9 + Math.random() * 0.6);
+      ? -2 + (Math.random() - 0.5) * 2.4
+      : -2 + (Math.random() < 0.5 ? 1 : -1) * (1.4 + Math.random() * 0.5);
     rock.position.set((Math.random() - 0.5) * 20, -0.34, z);
     rock.scale.y = 0.6 + Math.random() * 0.3;
     rock.rotation.y = Math.random() * Math.PI;
@@ -595,7 +597,7 @@ function buildStream(scene, camera) {
       new THREE.ConeGeometry(0.4 + Math.random() * 0.2, 1.6 + Math.random() * 0.6, 6),
       new THREE.MeshStandardMaterial({ color: 0x35462a, roughness: 1, flatShading: true })
     );
-    const side = Math.random() < 0.5 ? -0.8 : -5.5;
+    const side = Math.random() < 0.5 ? 1.5 : -4.5;
     tree.position.set((Math.random() - 0.5) * 22, 0.3, side - Math.random() * 0.8);
     scene.add(tree);
   }
@@ -635,16 +637,16 @@ function buildStream(scene, camera) {
   const motes = new THREE.Points(mGeo, mMat);
   scene.add(motes);
 
-  camera.position.set(0, 1.4, 3.4);
-  camera.lookAt(0, -0.2, -3);
+  camera.position.set(0, 2.2, 2.0);
+  camera.lookAt(0, -0.4, -2);
 
   return {
     update(t) {
       waterMat.uniforms.time.value = t;
       mMat.uniforms.time.value = t;
       camera.position.x = Math.sin(t * 0.12) * 0.12;
-      camera.position.y = 1.4 + Math.cos(t * 0.18) * 0.03;
-      camera.lookAt(0, -0.2, -3);
+      camera.position.y = 2.2 + Math.cos(t * 0.18) * 0.03;
+      camera.lookAt(0, -0.4, -2);
     }
   };
 }
