@@ -4,12 +4,12 @@ import * as store from './store.js';
 const DURATIONS = { focus: 25 * 60, short: 5 * 60, long: 15 * 60 };
 const PHASES   = { focus: 'focus', short: 'short break', long: 'long break' };
 const SOUNDS = {
-  dawn:      'assets/audio/dawn.mp3',
-  fireplace: 'assets/audio/fireplace.mp3',
-  ocean:     'assets/audio/ocean.mp3',
-  forest:    'assets/audio/forest.mp3',
-  rain:      'assets/audio/rain.mp3',
-  stream:    'assets/audio/stream.mp3',
+  dawn:      '/assets/audio/dawn.mp3',
+  fireplace: '/assets/audio/fireplace.mp3',
+  ocean:     '/assets/audio/ocean.mp3',
+  forest:    '/assets/audio/forest.mp3',
+  rain:      '/assets/audio/rain.mp3',
+  stream:    '/assets/audio/stream.mp3',
 };
 
 const timeEl     = document.getElementById('time');

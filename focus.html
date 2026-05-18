@@ -1,96 +1,10 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>Focus — Stillpoint</title>
-<meta name="description" content="A small focus timer in a quiet place. Pick a sound, start the breath, do the work." />
-<meta name="theme-color" content="#f6efe2" />
-<link rel="icon" href="favicon.svg" type="image/svg+xml" />
-<!-- Open Graph -->
-<meta property="og:title" content="Focus Timer — Stillpoint" />
-<meta property="og:description" content="A small ritual. Pick a sound, start the breath, do the work." />
-<meta property="og:image" content="https://thestillpoint.in/og-preview.png" />
-<meta property="og:url" content="https://thestillpoint.in/focus.html" />
-<meta property="og:type" content="website" />
-<meta name="twitter:card" content="summary_large_image" />
-<link rel="canonical" href="https://thestillpoint.in/focus.html" />
-<link rel="modulepreload" href="https://unpkg.com/three@0.160.0/build/three.module.js" />
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="css/style.css" />
-<script type="importmap">
-{
-  "imports": {
-    "three": "https://unpkg.com/three@0.160.0/build/three.module.js"
-  }
-}
-</script>
+<meta charset="utf-8">
+<link rel="canonical" href="https://thestillpoint.in/focus">
+<meta http-equiv="refresh" content="0;url=/focus">
+<script>window.location.replace('/focus')</script>
 </head>
-<body data-page="focus">
-
-<div class="boot" id="boot" aria-hidden="true"><span class="boot__dot"></span></div>
-
-<nav class="nav" id="nav">
-  <a class="nav__brand" href="index.html">stillpoint<span>.</span></a>
-  <div class="nav__links">
-    <a href="index.html">Home</a>
-    <a href="soundscapes.html">Soundscapes</a>
-    <a href="focus.html" class="is-active">Focus</a>
-    <a href="breathe.html">Breathe</a>
-    <a href="about.html">About</a>
-  </div>
-  <div class="nav__actions">
-    <button class="nav__theme" id="navTheme" aria-label="Toggle theme">☾</button>
-    <button class="nav__menu" id="navMenu" aria-label="Menu">≡</button>
-  </div>
-</nav>
-
-
-<main class="focus">
-  <div class="scene-stage" id="focusStage"></div>
-
-  <!-- Timer — always visible, floats over the scene -->
-  <div class="focus__timer-zone reveal">
-    <p class="focus__eyebrow">A small ritual</p>
-    <div class="focus__time" id="time">25:00</div>
-    <div class="focus__phase" id="phase">focus</div>
-    <div class="focus__sessions" id="sessions"></div>
-  </div>
-
-  <!-- Controls — glass drawer at bottom, scrollable if needed -->
-  <div class="focus__drawer reveal">
-    <div class="focus__controls">
-      <button class="focus__chip is-active" data-mode="focus">Focus · 25</button>
-      <button class="focus__chip" data-mode="short">Short · 5</button>
-      <button class="focus__chip" data-mode="long">Long · 15</button>
-    </div>
-    <div class="focus__controls" style="margin-top:14px;">
-      <button class="btn btn--primary" id="toggle">Start <span class="arrow">→</span></button>
-      <button class="btn btn--ghost" id="reset">Reset</button>
-    </div>
-    <div class="focus__sound">
-      <button data-sound="none" class="is-active">silence</button>
-      <button data-sound="dawn">dawn</button>
-      <button data-sound="fireplace">hearth</button>
-      <button data-sound="ocean">tideline</button>
-      <button data-sound="forest">nightwood</button>
-      <button data-sound="rain">mist</button>
-      <button data-sound="stream">brook</button>
-    </div>
-  </div>
-</main>
-
-<div class="bottom-line">
-  <span>SLOW IS A SUPERPOWER</span>
-  <!-- FOOTER: update year here if needed -->
-  <span class="credit">Nachiket Talekar · 2026</span>
-</div>
-
-<script type="module" src="js/scene-focus.js"></script>
-<script type="module" src="js/focus-timer.js"></script>
-<script type="module" src="js/theme.js"></script>
-<script type="module" src="js/page.js"></script>
-</body>
+<body><a href="/focus">→ Focus</a></body>
 </html>

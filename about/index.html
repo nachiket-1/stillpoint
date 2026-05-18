@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>About — Stillpoint</title>
+<meta name="description" content="A small note on why this exists, and the hands behind it." />
+<meta name="theme-color" content="#f6efe2" />
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<!-- Open Graph -->
+<meta property="og:title" content="About — Stillpoint" />
+<meta property="og:description" content="A small antidote to the scroll. No accounts, no analytics, no dark patterns." />
+<meta property="og:image" content="https://thestillpoint.in/og-preview.png" />
+<meta property="og:url" content="https://thestillpoint.in/about" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary_large_image" />
+<link rel="canonical" href="https://thestillpoint.in/about" />
+<link rel="modulepreload" href="https://unpkg.com/three@0.160.0/build/three.module.js" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/css/style.css" />
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js"
+  }
+}
+</script>
+</head>
+<body data-page="about">
+
+<div class="boot" id="boot" aria-hidden="true"><span class="boot__dot"></span></div>
+
+<nav class="nav" id="nav">
+  <a class="nav__brand" href="/">stillpoint<span>.</span></a>
+  <div class="nav__links">
+    <a href="/">Home</a>
+    <a href="/soundscapes">Soundscapes</a>
+    <a href="/focus">Focus</a>
+    <a href="/breathe">Breathe</a>
+    <a href="/about" class="is-active">About</a>
+  </div>
+  <div class="nav__actions">
+    <button class="nav__theme" id="navTheme" aria-label="Toggle theme">☾</button>
+    <button class="nav__menu" id="navMenu" aria-label="Menu">≡</button>
+  </div>
+</nav>
+
+
+<main class="about">
+  <div class="about__art" id="aboutArt"></div>
+  <div class="about__copy">
+    <h1 class="reveal">A small <em>antidote</em> to the scroll.</h1>
+    <p class="reveal">Most of the internet is built to keep you moving. Tap, swipe, refresh. <strong>Stillpoint is built to keep you still.</strong></p>
+    <p class="reveal">It began with a question: what if a website could feel like the moment you step out onto a porch at dusk — that first long breath, the world a little quieter than the one inside? So I built six worlds — a dawn chorus, a hearth, a tideline, a nightwood, a soft rain, and a brook — and a small timer to put a frame around your work.</p>
+    <p class="reveal">No accounts. No analytics breathing down your neck. No dark patterns. Open it, listen, leave. Or stay a while.</p>
+    <div class="about__signature reveal">
+      Nachiket Talekar
+      <small>Made with Three.js and a slow afternoon · 2026</small>
+    </div>
+  </div>
+</main>
+
+<div class="bottom-line">
+  <span>YOU CAN ALWAYS COME BACK</span>
+  <!-- FOOTER: update year here if needed -->
+  <span class="credit">thestillpoint.in</span>
+</div>
+
+<script type="module" src="/js/scene-about.js"></script>
+<script type="module" src="/js/theme.js"></script>
+<script type="module" src="/js/page.js"></script>
+</body>
+</html>
