@@ -865,6 +865,17 @@ body[data-page="focus"] { overflow: hidden; }
 }
 
 /* ─── About page ─── */
+body[data-page="about"] .nav {
+  mix-blend-mode: normal;
+  color: var(--ink);
+  background: rgba(246, 239, 226, 0.88);
+  backdrop-filter: blur(16px) saturate(120%);
+  -webkit-backdrop-filter: blur(16px) saturate(120%);
+}
+[data-theme="dark"] body[data-page="about"] .nav {
+  background: rgba(26, 24, 18, 0.90);
+  color: #f2eadc;
+}
 body[data-page="about"] {
   display: flex;
   flex-direction: column;
