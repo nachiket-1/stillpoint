@@ -539,11 +539,11 @@ function buildStream(scene, camera) {
     m.position.set(0, -0.4, zPos);
     scene.add(m);
   }
-  bank(-1.5);  // south bank (between camera and stream)
-  bank(-4.5);  // north bank (beyond stream)
+  bank(0.5);   // south bank — ends at z=-1.5, water starts at z=-1.5
+  bank(-6.5);  // north bank — starts at z=-4.5, water ends at z=-4.5
 
-  // Stream — east-west plane, extends past both frame edges so it never ends visibly
-  const waterGeo = new THREE.PlaneGeometry(22, 1.8, 80, 12);
+  // Stream — east-west, 3 units wide, no bank overlap
+  const waterGeo = new THREE.PlaneGeometry(22, 3.0, 80, 20);
   waterGeo.rotateX(-Math.PI / 2);
   const waterMat = new THREE.ShaderMaterial({
     uniforms: { time: { value: 0 } },
@@ -635,16 +635,16 @@ function buildStream(scene, camera) {
   const motes = new THREE.Points(mGeo, mMat);
   scene.add(motes);
 
-  camera.position.set(0, 0.55, 3.6);
-  camera.lookAt(0, 0.1, -3);
+  camera.position.set(0, 1.4, 3.4);
+  camera.lookAt(0, -0.2, -3);
 
   return {
     update(t) {
       waterMat.uniforms.time.value = t;
       mMat.uniforms.time.value = t;
       camera.position.x = Math.sin(t * 0.12) * 0.12;
-      camera.position.y = 0.55 + Math.cos(t * 0.18) * 0.03;
-      camera.lookAt(0, 0.1, -3);
+      camera.position.y = 1.4 + Math.cos(t * 0.18) * 0.03;
+      camera.lookAt(0, -0.2, -3);
     }
   };
 }
