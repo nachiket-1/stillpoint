@@ -332,14 +332,21 @@ canvas { display: block; }
 body[data-page="soundscapes"] .bottom-line,
 body[data-page="about"] .bottom-line {
   position: static;
-  margin: 48px 8vw 40px;
   padding-top: 24px;
   border-top: 1px solid var(--hairline);
 }
+body[data-page="soundscapes"] .bottom-line {
+  margin: 48px 8vw 40px;
+}
+body[data-page="about"] .bottom-line {
+  margin: 0 8vw 40px;
+}
 @media (max-width: 720px) {
-  body[data-page="soundscapes"] .bottom-line,
-  body[data-page="about"] .bottom-line {
+  body[data-page="soundscapes"] .bottom-line {
     margin: 52px 24px 44px;
+  }
+  body[data-page="about"] .bottom-line {
+    margin: 0 24px 44px;
   }
 }
 /* Hide home bottom-line on mobile — too long, overlaps CTAs */
