@@ -39,6 +39,7 @@
     <a href="/soundscapes/" class="is-active">Soundscapes</a>
     <a href="/focus/">Focus</a>
     <a href="/breathe/">Breathe</a>
+    <a href="/daily/">Daily</a>
     <a href="/about/">About</a>
   </div>
   <div class="nav__actions">
@@ -54,6 +55,15 @@
     <h1 class="reveal">Six worlds,<br/>one <em>breath</em>.</h1>
     <p class="scapes__hint reveal">Tap a card to enter its sound. Layer as many as you like — the mixer below lets you dial each one. Headphones recommended.</p>
   </header>
+
+  <div class="presets">
+    <span class="presets__label">Presets</span>
+    <button class="presets__btn" data-preset="morning">Morning</button>
+    <button class="presets__btn" data-preset="deepfocus">Deep Focus</button>
+    <button class="presets__btn" data-preset="winddown">Wind Down</button>
+    <button class="presets__btn" data-preset="campfire">Campfire</button>
+    <button class="presets__btn" data-preset="forest">Forest Bath</button>
+  </div>
 
   <div class="scape-grid">
     <article class="scape" data-key="dawn" data-audio="/assets/audio/dawn.mp3">
@@ -185,6 +195,14 @@
   <div class="mixer__lane" data-key="stream">
     <span class="mixer__name" id="mixer-label-stream">Brook</span>
     <input type="range" class="mixer__slider" min="0" max="100" value="60" aria-labelledby="mixer-label-stream" />
+  </div>
+  <div class="mixer__sep" aria-hidden="true"></div>
+  <div class="mixer__sleep" id="mixerSleep">
+    <span class="mixer__sleep-title">Sleep</span>
+    <button class="mixer__sleep-btn" data-mins="15">15m</button>
+    <button class="mixer__sleep-btn" data-mins="30">30m</button>
+    <button class="mixer__sleep-btn" data-mins="60">60m</button>
+    <span class="mixer__sleep-cd" id="sleepCd" aria-live="polite"></span>
   </div>
 </div>
 </main>

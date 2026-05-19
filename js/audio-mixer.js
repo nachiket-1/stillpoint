@@ -189,3 +189,100 @@ document.addEventListener('visibilitychange', () => {
   if (document.hidden) ctx.suspend();
   else ctx.resume();
 });
+
+// ─── PRESETS ───────────────────────────────────────────────────────────────
+const PRESETS = {
+  morning:   { dawn: 75, fireplace: 25, ocean: 0,  forest: 0,  rain: 0,  stream: 0  },
+  deepfocus: { dawn: 0,  fireplace: 0,  ocean: 0,  forest: 0,  rain: 65, stream: 40 },
+  winddown:  { dawn: 0,  fireplace: 0,  ocean: 60, forest: 0,  rain: 70, stream: 0  },
+  campfire:  { dawn: 0,  fireplace: 80, ocean: 0,  forest: 50, rain: 0,  stream: 0  },
+  forest:    { dawn: 30, fireplace: 0,  ocean: 0,  forest: 70, rain: 0,  stream: 55 },
+};
+
+function applyPreset(key) {
+  const config = PRESETS[key];
+  if (!config) return;
+
+  document.querySelectorAll('.presets__btn').forEach(b =>
+    b.classList.toggle('is-active', b.dataset.preset === key)
+  );
+
+  Object.entries(config).forEach(([trackKey, volume]) => {
+    const card  = document.querySelector(`.scape[data-key="${trackKey}"]`);
+    const lane  = mixer && mixer.querySelector(`.mixer__lane[data-key="${trackKey}"]`);
+    const slider = lane && lane.querySelector('.mixer__slider');
+    const shouldPlay = volume > 0;
+    const isPlaying  = state[trackKey] && state[trackKey].playing;
+
+    if (slider) {
+      slider.value = volume;
+      slider.style.setProperty('--fill', volume + '%');
+      store.set(`mixer.${trackKey}`, volume);
+    }
+    if (isPlaying && gains[trackKey]) fadeTo(gains[trackKey], volume / 100);
+    if (shouldPlay && !isPlaying && card) card.click();
+    else if (!shouldPlay && isPlaying && card) card.click();
+  });
+}
+
+document.querySelectorAll('.presets__btn').forEach(btn =>
+  btn.addEventListener('click', () => applyPreset(btn.dataset.preset))
+);
+
+// ─── SLEEP TIMER ───────────────────────────────────────────────────────────
+let sleepEndTime = null;
+let sleepRafId   = null;
+let sleepFading  = false;
+const sleepCd    = document.getElementById('sleepCd');
+
+function cancelSleep() {
+  sleepEndTime = null;
+  sleepFading  = false;
+  if (sleepRafId) { cancelAnimationFrame(sleepRafId); sleepRafId = null; }
+  if (sleepCd) sleepCd.textContent = '';
+}
+
+function tickSleep() {
+  if (!sleepEndTime) return;
+  const remaining = sleepEndTime - Date.now();
+
+  if (remaining <= 0) {
+    cancelSleep();
+    document.querySelectorAll('.mixer__sleep-btn.is-active')
+      .forEach(b => b.classList.remove('is-active'));
+    Object.keys(state).forEach(key => {
+      if (state[key].playing) {
+        const card = document.querySelector(`.scape[data-key="${key}"]`);
+        if (card) card.click();
+      }
+    });
+    return;
+  }
+
+  if (!sleepFading && remaining <= 2 * 60 * 1000) {
+    sleepFading = true;
+    Object.keys(gains).forEach(key => {
+      if (state[key] && state[key].playing) fadeTo(gains[key], 0, remaining);
+    });
+  }
+
+  const m = Math.floor(remaining / 60000);
+  const s = Math.floor((remaining % 60000) / 1000);
+  if (sleepCd) sleepCd.textContent = `${m}:${String(s).padStart(2, '0')}`;
+  sleepRafId = requestAnimationFrame(tickSleep);
+}
+
+document.querySelectorAll('.mixer__sleep-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const mins = Number(btn.dataset.mins);
+    document.querySelectorAll('.mixer__sleep-btn').forEach(b =>
+      b.classList.remove('is-active')
+    );
+    cancelSleep();
+    if (mins > 0) {
+      btn.classList.add('is-active');
+      sleepEndTime = Date.now() + mins * 60 * 1000;
+      sleepRafId   = requestAnimationFrame(tickSleep);
+    }
+  });
+});

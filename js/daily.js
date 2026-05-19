@@ -2,16 +2,20 @@
 
 const el = document.getElementById('daily');
 if (el) {
-  fetch('data/wisdom.json')
+  const d = new Date();
+  const dateEl = el.querySelector('.daily__date');
+  if (dateEl) {
+    dateEl.textContent = d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+  }
+
+  fetch('/data/wisdom.json')
     .then((r) => r.json())
     .then((quotes) => {
-      // Day-of-year index gives a stable per-day selection that loops yearly
-      const d = new Date();
       const start = new Date(d.getFullYear(), 0, 0);
       const dayOfYear = Math.floor((d - start) / 86400000);
       const q = quotes[dayOfYear % quotes.length];
 
-      el.querySelector('.daily__text').textContent = `“${q.text}”`;
+      el.querySelector('.daily__text').textContent = `”${q.text}”`;
       el.querySelector('.daily__author').textContent = `— ${q.author}`;
       el.classList.add('is-loaded');
     })
