@@ -161,6 +161,8 @@ const rayMats = [];
 // ─── Moon  (upper right, rises as sun sets)
 const moonMats = [];
 {
+  // Halo: corona ring right at disc edge + wide soft atmospheric glow
+  // disc radius 1.6 / halo radius 6.5 = 0.246 in UV space
   const moonHaloMat = new THREE.ShaderMaterial({
     transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
     uniforms: { uOp: { value: 0 } },
@@ -169,8 +171,9 @@ const moonMats = [];
       varying vec2 vUv; uniform float uOp;
       void main() {
         float d = distance(vUv, vec2(0.5));
-        float a = pow(1.0 - smoothstep(0.0, 0.5, d), 1.8) * 0.55 * uOp;
-        gl_FragColor = vec4(0.58, 0.72, 1.0, a);
+        float corona = exp(-max(0.0, d - 0.246) * 65.0) * 0.60;
+        float glow   = pow(max(0.0, 1.0 - d * 2.0), 2.4) * 0.34;
+        gl_FragColor = vec4(0.62, 0.78, 1.0, (corona + glow) * uOp);
       }`,
   });
   const moonHalo = new THREE.Mesh(new THREE.CircleGeometry(6.5, 96), moonHaloMat);
@@ -178,19 +181,50 @@ const moonMats = [];
   scene.add(moonHalo);
   moonMats.push(moonHaloMat);
 
+  // Core: sphere-shaded disc with value-noise maria, limb darkening, gibbous phase
   const moonCoreMat = new THREE.ShaderMaterial({
     transparent: true, depthWrite: false, blending: THREE.NormalBlending,
     uniforms: { uOp: { value: 0 } },
     vertexShader: billVert,
     fragmentShader: `
       varying vec2 vUv; uniform float uOp;
+      float hash(vec2 p){ return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453); }
+      float noise(vec2 p){
+        vec2 i=floor(p),f=fract(p),u=f*f*(3.0-2.0*f);
+        return mix(mix(hash(i),hash(i+vec2(1,0)),u.x),
+                   mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),u.x),u.y);
+      }
       void main() {
         vec2 p = vUv - 0.5;
         float d = length(p);
-        float edge = 1.0 - smoothstep(0.44, 0.50, d);
-        float limb = 1.0 - smoothstep(0.0, 0.48, d) * 0.14;
-        float nx = sin(p.x * 38.0) * sin(p.y * 31.0) * 0.04;
-        vec3 col = vec3(0.94, 0.96, 1.0) * limb + nx;
+        float edge = 1.0 - smoothstep(0.46, 0.50, d);
+        if (edge < 0.001) { gl_FragColor = vec4(0.0); return; }
+
+        vec2 n = p * 2.0;                            // −1..1 across disc
+        float z = sqrt(max(0.0, 1.0 - dot(n, n)));   // sphere surface z
+
+        // Limb darkening (brighter at centre, darker at rim)
+        float limb = 0.50 + 0.50 * z;
+
+        // Multi-scale surface: broad albedo variation + fine grain
+        float s = noise(n * 4.5 + 1.7) * 0.55
+                + noise(n * 11.0 + 5.3) * 0.30
+                + noise(n * 23.0 + 9.1) * 0.15;
+
+        // Dark maria: product of two noise fields → sparse dark blotches
+        float m    = noise(n * 2.6 + 2.0) * noise(n * 2.0 + 4.7);
+        float maria = smoothstep(0.22, 0.40, m);
+
+        // Highlands: silvery blue-white; Mare: dark blue-grey
+        vec3 highlands = mix(vec3(0.74, 0.78, 0.87), vec3(0.88, 0.91, 0.97), s);
+        vec3 mare      = vec3(0.24, 0.27, 0.34);
+        vec3 col = mix(highlands, mare, maria * 0.68);
+        col *= limb;
+
+        // Waxing-gibbous phase: most of disc lit, soft shadow terminator on left
+        float phase = smoothstep(-0.30, 0.40, n.x * 0.72 + n.y * 0.12);
+        col *= mix(0.06, 1.0, phase);   // 0.06 = faint earthshine on dark side
+
         gl_FragColor = vec4(col, edge * uOp);
       }`,
   });
