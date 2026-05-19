@@ -1239,23 +1239,13 @@ body[data-page="breathe"] .nav {
   }
 }
 
-/* ─── Dark mode: night tint over the daytime 3D scenes */
-[data-theme="dark"] #stage::after,
+/* ─── Dark mode: night tint over the focus 3D scene (hero handles its own night via WebGL) */
 [data-theme="dark"] .focus .scene-stage::after {
   content: "";
   position: absolute;
   inset: 0;
   pointer-events: none;
   z-index: 3;
-}
-[data-theme="dark"] #stage::after {
-  /* Heavier at the top (sky) where it reads most clearly as "day") */
-  background: linear-gradient(to bottom,
-    rgba(8, 6, 20, 0.72) 0%,
-    rgba(8, 6, 20, 0.52) 55%,
-    rgba(8, 6, 20, 0.28) 100%);
-}
-[data-theme="dark"] .focus .scene-stage::after {
   background: rgba(8, 6, 20, 0.58);
 }
 
