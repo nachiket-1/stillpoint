@@ -37,8 +37,8 @@ function initScene(canvas, build) {
   const clock = new THREE.Clock();
   let raf;
   function loop() {
-    const t = clock.getElapsedTime();
     const dt = Math.min(0.05, clock.getDelta());
+    const t = clock.elapsedTime;
     if (ctx.update) ctx.update(t, dt);
     const r = canvas.getBoundingClientRect();
     if (renderer.domElement.width !== Math.floor(r.width * renderer.getPixelRatio())) resize();
