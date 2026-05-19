@@ -21,11 +21,9 @@ renderer.outputColorSpace = THREE.SRGBColorSpace;
 stage.appendChild(renderer.domElement);
 
 // ─── Night blend  (0 = day, 1 = night)
-let nightBlend  = document.documentElement.dataset.theme === 'dark' ? 1 : 0;
-let targetNight = nightBlend;
-new MutationObserver(() => {
-  targetNight = document.documentElement.dataset.theme === 'dark' ? 1 : 0;
-}).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+// Polled every frame so the initial value is correct even if theme.js runs later.
+let nightBlend  = 0;
+let targetNight = 0;
 
 // ─── Lights
 const hemiLight = new THREE.HemisphereLight(0xfff5dc, 0xd9c79a, 0.95);
@@ -164,19 +162,19 @@ const rayMats = [];
 const moonMats = [];
 {
   const moonHaloMat = new THREE.ShaderMaterial({
-    transparent: true, depthWrite: false, blending: THREE.NormalBlending,
+    transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
     uniforms: { uOp: { value: 0 } },
     vertexShader: billVert,
     fragmentShader: `
       varying vec2 vUv; uniform float uOp;
       void main() {
         float d = distance(vUv, vec2(0.5));
-        float a = pow(1.0 - smoothstep(0.0, 0.5, d), 1.6) * 0.40 * uOp;
-        gl_FragColor = vec4(0.68, 0.80, 1.0, a);
+        float a = pow(1.0 - smoothstep(0.0, 0.5, d), 1.8) * 0.55 * uOp;
+        gl_FragColor = vec4(0.58, 0.72, 1.0, a);
       }`,
   });
-  const moonHalo = new THREE.Mesh(new THREE.CircleGeometry(4.2, 96), moonHaloMat);
-  moonHalo.position.set(4.0, 4.2, -30);
+  const moonHalo = new THREE.Mesh(new THREE.CircleGeometry(6.5, 96), moonHaloMat);
+  moonHalo.position.set(4.0, 5.0, -30);
   scene.add(moonHalo);
   moonMats.push(moonHaloMat);
 
@@ -190,16 +188,14 @@ const moonMats = [];
         vec2 p = vUv - 0.5;
         float d = length(p);
         float edge = 1.0 - smoothstep(0.44, 0.50, d);
-        // subtle limb darkening
         float limb = 1.0 - smoothstep(0.0, 0.48, d) * 0.14;
-        // faint crater suggestion via cheap noise
         float nx = sin(p.x * 38.0) * sin(p.y * 31.0) * 0.04;
-        vec3 col = vec3(0.93, 0.95, 1.0) * limb + nx;
+        vec3 col = vec3(0.94, 0.96, 1.0) * limb + nx;
         gl_FragColor = vec4(col, edge * uOp);
       }`,
   });
-  const moonCore = new THREE.Mesh(new THREE.CircleGeometry(1.15, 64), moonCoreMat);
-  moonCore.position.set(4.0, 4.2, -29.9);
+  const moonCore = new THREE.Mesh(new THREE.CircleGeometry(1.6, 64), moonCoreMat);
+  moonCore.position.set(4.0, 5.0, -29.9);
   scene.add(moonCore);
   moonMats.push(moonCoreMat);
 }
@@ -387,8 +383,9 @@ function animate() {
   const dt = Math.min(0.05, clock.getDelta());
   const t  = clock.elapsedTime;
 
-  // ── Smooth night blend
-  nightBlend += (targetNight - nightBlend) * Math.min(1, dt * 1.8);
+  // ── Smooth night blend — poll every frame so it catches the initial theme set by theme.js
+  targetNight = document.documentElement.dataset.theme === 'dark' ? 1 : 0;
+  nightBlend += (targetNight - nightBlend) * Math.min(1, dt * 3.0);
   if (Math.abs(nightBlend - targetNight) < 0.001) nightBlend = targetNight;
 
   const nb = nightBlend;
@@ -411,8 +408,8 @@ function animate() {
   scene.fog.far  = 65 - nb * 22;
 
   // ── Sun fades first half, moon appears second half
-  const sunOp  = Math.max(0, 1 - nb * 2.2);
-  const moonOp = Math.max(0, (nb - 0.35) / 0.65);
+  const sunOp  = Math.max(0, 1 - nb * 2.5);
+  const moonOp = Math.max(0, (nb - 0.25) / 0.75);
   sunMats.forEach(m => { m.uniforms.uOp.value = sunOp; });
   rayMats.forEach(m => { m.uniforms.uOp.value = sunOp; });
   moonMats.forEach(m => { m.uniforms.uOp.value = moonOp; });
@@ -472,7 +469,7 @@ function animate() {
   camera.lookAt(0, 1.6 + mouse.y * 0.05, 0);
 
   renderer.render(scene, camera);
-  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(animate);
+  requestAnimationFrame(animate);
 }
 
 // expose particle position array for the animate loop
