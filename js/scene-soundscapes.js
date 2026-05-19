@@ -591,9 +591,11 @@ function buildStream(scene, camera) {
     scene.add(rock);
   }
 
-  // Tree silhouettes lining both banks
+  // Tree silhouettes lining both banks — foreground + background rows for depth
   const treeColors = [0x35462a, 0x2d3d24, 0x3e5230, 0x293820];
-  for (let i = 0; i < 28; i++) {
+  const bgTreeColors = [0x22311a, 0x1e2a15, 0x283819, 0x1c2912];
+  // foreground row: 50 trees tight to the banks
+  for (let i = 0; i < 50; i++) {
     const h = 1.2 + Math.random() * 1.4;
     const r = 0.30 + Math.random() * 0.28;
     const color = treeColors[i % treeColors.length];
@@ -604,10 +606,28 @@ function buildStream(scene, camera) {
     const side = Math.random() < 0.5 ? 1.5 : -4.5;
     tree.position.set((Math.random() - 0.5) * 24, -0.45 + h * 0.5, side - Math.random() * 1.2);
     scene.add(tree);
-    // thin trunk
     const trunk = new THREE.Mesh(
       new THREE.CylinderGeometry(0.03, 0.05, 0.4, 5),
       new THREE.MeshStandardMaterial({ color: 0x2a1a0e, roughness: 1 })
+    );
+    trunk.position.set(tree.position.x, tree.position.y - h * 0.5, tree.position.z);
+    scene.add(trunk);
+  }
+  // background row: 30 darker, slightly taller trees further from banks
+  for (let i = 0; i < 30; i++) {
+    const h = 1.6 + Math.random() * 1.6;
+    const r = 0.22 + Math.random() * 0.20;
+    const color = bgTreeColors[i % bgTreeColors.length];
+    const tree = new THREE.Mesh(
+      new THREE.ConeGeometry(r, h, 6),
+      new THREE.MeshStandardMaterial({ color, roughness: 1, flatShading: true })
+    );
+    const side = Math.random() < 0.5 ? 3.2 : -6.2;
+    tree.position.set((Math.random() - 0.5) * 24, -0.45 + h * 0.5, side - Math.random() * 1.0);
+    scene.add(tree);
+    const trunk = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.02, 0.04, 0.4, 5),
+      new THREE.MeshStandardMaterial({ color: 0x1e120a, roughness: 1 })
     );
     trunk.position.set(tree.position.x, tree.position.y - h * 0.5, tree.position.z);
     scene.add(trunk);
