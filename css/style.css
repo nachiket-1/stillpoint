@@ -106,9 +106,9 @@ canvas { display: block; }
 }
 .nav__brand span { color: var(--ochre); }
 .nav__links {
-  display: flex; gap: 36px;
-  font-size: 13px;
-  letter-spacing: 0.18em;
+  display: flex; gap: 22px;
+  font-size: 12px;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   font-weight: 500;
 }
